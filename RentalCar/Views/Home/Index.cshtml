@@ -1,0 +1,105 @@
+﻿@model List<RentalCar.Data.Models.Car>
+@using RentalCar.Data.Enums
+
+@{
+    ViewBag.Title = "Ana Sayfa";
+}
+
+
+<div class="bg-light shadow-lg p-5 rounded-4 text-center mb-5">
+    <h1 class="display-5 fw-bold text-dark">🚗 Hayalinizdeki Araba Burada!</h1>
+    <p class="lead text-muted mb-4">Binlerce ilan arasında dilediğiniz aracı hızlıca bulun. Hemen keşfetmeye başlayın!</p>
+
+    <div class="mx-auto" style="max-width: 700px;">
+        <form method="get" asp-controller="Car" asp-action="List" class="row g-2">
+            <div class="col-md-4">
+                <input type="text" name="brand" class="form-control form-control-sm shadow-sm" placeholder="Marka" />
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="model" class="form-control form-control-sm shadow-sm" placeholder="Model" />
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="colour" class="form-control form-control-sm shadow-sm" placeholder="Renk" />
+            </div>
+            <div class="col-md-4">
+                <select name="fuelType" class="form-select form-select-sm shadow-sm">
+                    <option value="">Yakıt Türü</option>
+                    @foreach (var fuel in Enum.GetValues(typeof(FuelType)))
+                    {
+                        <option value="@fuel">@fuel</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select name="gear" class="form-select form-select-sm shadow-sm">
+                    <option value="">Vites Türü</option>
+                    @foreach (var g in Enum.GetValues(typeof(Gear)))
+                    {
+                        <option value="@g">@g</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select name="bodyType" class="form-select form-select-sm shadow-sm">
+                    <option value="">Kasa Tipi</option>
+                    @foreach (var body in Enum.GetValues(typeof(BodyType)))
+                    {
+                        <option value="@body">@body</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
+                <input type="number" name="year" class="form-control form-control-sm shadow-sm" placeholder="Yıl" />
+            </div>
+            <div class="col-md-6 d-grid">
+                <button class="btn btn-warning btn-sm fw-semibold shadow-sm">🔍 Filtrele</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="container my-5">
+        <h2 class="text-center fw-bold text-dark mb-4">✨ Vitrindeki Araçlar</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var car in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0 rounded-4">
+                        <img src="~/Images/Upload/@(car.ImageUrls?.Split(',').FirstOrDefault())"
+                             class="card-img-top rounded-top-4"
+                             alt="@car.Brand @car.Model"
+                             style="height: 180px; object-fit: cover;" />
+                        <div class="card-body text-center">
+                            <h6 class="card-title fw-bold text-dark">@car.Brand @car.Model</h6>
+                            <p class="card-text text-muted small">Renk: @car.Colour | Yıl: @car.Year</p>
+                            <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-warning btn-sm shadow-sm">İlan Detay</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info text-center my-4">Henüz vitrinde gösterilecek araç bulunamadı.</div>
+}
+
+
+<div class="row align-items-center bg-white p-4 mt-5 rounded-4 shadow-sm">
+    <div class="col-md-6 text-center mb-3 mb-md-0">
+        <img src="/images/Home.jpeg" alt="Araba" class="img-fluid rounded-4 shadow-sm" style="max-height: 280px;" />
+    </div>
+    <div class="col-md-6">
+        <h3 class="fw-bold text-dark mb-3">🧭 Hakkımızda</h3>
+        <p class="text-muted">
+            <strong>CarSales</strong>, Türkiye genelindeki araç sahipleri ve alıcıları güvenli, hızlı ve şeffaf bir ortamda buluşturan modern bir araç ilan platformudur.
+        </p>
+        <p class="text-muted">
+            Kolay ilan verme, akıllı filtreleme ve hızlı iletişim özellikleri ile araç alım-satım sürecini dijitalleştiriyoruz.
+        </p>
+        <a asp-controller="Home" asp-action="About" class="btn btn-outline-warning btn-sm shadow-sm">Hakkımızda Detay</a>
+    </div>
+</div>

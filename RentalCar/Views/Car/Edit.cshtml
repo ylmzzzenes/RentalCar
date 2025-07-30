@@ -1,0 +1,59 @@
+﻿@using RentalCar.Data.Enums 
+@model RentalCar.Data.Models.Car
+
+
+@{
+    ViewData["Title"] = "Araç Güncelle";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="Edit" method="post">
+    
+    <div class="form-group">
+        <label asp-for="ImageUrls"></label>
+        <input type="file" asp-for="ImageUrls" class="form-control" />
+        <span asp-validation-for="ImageUrls" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Vin"></label>
+        <input asp-for="Vin" class="form-control" />
+        <span asp-validation-for="Vin" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Brand"></label>
+        <input asp-for="Brand" class="form-control" />
+        <span asp-validation-for="Brand" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Model"></label>
+        <input asp-for="Model" class="form-control" />
+        <span asp-validation-for="Model" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Year"></label>
+        <input asp-for="Year" class="form-control" type="date" />
+        <span asp-validation-for="Year" class="text-danger"></span>
+    </div>
+
+
+    <div class="form-group">
+        <label asp-for="Colour"></label>
+        <input asp-for="Colour" class="form-control" />
+        <span asp-validation-for="Colour" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Plate"></label>
+        <input asp-for="Plate" class="form-control" />
+        <span asp-validation-for="Plate" class="text-danger"></span>
+    </div>
+    @await Component.InvokeAsync("EnumSelector")
+
+
+    <button type="submit" class="btn btn-primary">Güncelle</button>
+    <a asp-action="Index" class="btn btn-secondary">İptal</a>
+</form>

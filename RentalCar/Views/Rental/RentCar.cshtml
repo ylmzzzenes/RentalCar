@@ -1,0 +1,81 @@
+﻿@using RentalCar.Data.Enums
+@using RentalCar.Data.Models
+@model RentalCar.Data.Models.Rental
+
+<div class="card shadow-sm border-0 p-4">
+    <div class="row g-4 align-items-start">
+
+        <div class="col-md-5 text-center">
+            @if (!string.IsNullOrWhiteSpace(Model.Car?.ImageUrls))
+            {
+                foreach (var img in Model.Car.ImageUrls.Split(','))
+                {
+                    <img src="~/Images/Upload/@img"
+                         class="img-thumbnail m-2"
+                         alt="@Model.Car.Brand @Model.Car.Model"
+                         style="max-height: 200px; object-fit: cover;" />
+                }
+            }
+            else
+            {
+                <p>Bu araca ait görsel bulunmamaktadır.</p>
+            }
+        </div>
+
+        <div class="col-md-7">
+            <h3 class="fw-bold mb-3">@Model.Car?.Brand @Model.Car?.Model Kiralama</h3>
+
+            <div class="row">
+                <div class="col-6 mb-2"><strong>Plaka:</strong> @Model.Car?.Plate</div>
+                <div class="col-6 mb-2"><strong>Yıl:</strong> @Model.Car?.Year</div>
+                <div class="col-6 mb-2"><strong>Yakıt Türü:</strong> @Model.Car?.FuelType</div>
+                <div class="col-6 mb-2"><strong>Vites:</strong> @Model.Car?.Gear</div>
+                <div class="col-6 mb-2"><strong>Kasa Tipi:</strong> @Model.Car?.BodyType</div>
+                <div class="col-6 mb-2"><strong>Renk:</strong> @Model.Car?.Colour</div>
+            </div>
+
+            <div class="mt-3">
+                <h6 class="fw-semibold text-secondary">Güvenlik Özellikleri</h6>
+                <p class="text-muted">@Model.Car?.Security</p>
+
+                <h6 class="fw-semibold text-secondary">İç Donanım</h6>
+                <p class="text-muted">@Model.Car?.InternalEquipment</p>
+
+                <h6 class="fw-semibold text-secondary">Dış Donanım</h6>
+                <p class="text-muted">@Model.Car?.ExternalEquipment</p>
+            </div>
+
+            <div class="mt-4">
+                <h5 class="fw-bold">Aracı Kirala</h5>
+
+                <form asp-controller="Rental" asp-action="RentCar" method="post" class="mt-3">
+                    <input type="hidden" name="id" value="@Model.CarId" />
+
+                    <div class="mb-3">
+                        <label for="rentalType" class="form-label">Kiralama Türü</label>
+                        <select class="form-select" name="RentalType" required>
+                            <option value="">Seçiniz</option>
+                            <option value="1">Günlük</option>
+                            <option value="2">Haftalık</option>
+                            <option value="4">Aylık</option>
+                            <option value="8">Uzun Dönem</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Süre (Gün)</label>
+                        <input type="number" name="duration" class="form-control" min="1" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Kirala</button>
+                </form>
+            </div>
+
+            <div class="mt-4">
+                <a asp-controller="Car" asp-action="List" class="btn btn-outline-secondary">← Geri Dön</a>
+                <a asp-controller="Car" asp-action="Edit" asp-route-id="@Model.CarId" class="btn btn-outline-primary ms-2">Güncelle</a>
+                <a asp-controller="Car" asp-action="Delete" asp-route-id="@Model.CarId" class="btn btn-outline-danger ms-2">Sil</a>
+            </div>
+        </div>
+    </div>
+</div>

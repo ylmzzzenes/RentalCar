@@ -1,0 +1,72 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using RentalCar.Data.Enums
+@using RentalCar.Data.Models
+@model RentalCar.Data.Models.Car
+@inject SignInManager<ApplicationUser> SignInManager
+
+<div class="container my-5">
+    <div class="card shadow-lg border-0 rounded-4 p-4 bg-light">
+        <div class="row g-5 align-items-start">
+
+         
+            <div class="col-md-5 text-center">
+                <div class="bg-white rounded-3 shadow-sm p-3">
+                    @foreach (var img in Model.ImageUrls.Split(','))
+                    {
+                        <img src="~/Images/Upload/@img"
+                             class="img-fluid rounded-3 shadow-sm mb-3"
+                             alt="@Model.Brand @Model.Model"
+                             style="max-height: 180px; object-fit: cover;" />
+                    }
+                </div>
+            </div>
+
+     
+            <div class="col-md-7">
+                <h3 class="fw-bold mb-3 text-dark">@Model.Brand @Model.Model</h3>
+
+                <div class="row text-muted small">
+                    <div class="col-6 mb-2"><strong>Plaka:</strong> @Model.Plate</div>
+                    <div class="col-6 mb-2"><strong>Yıl:</strong> @Model.Year</div>
+                    <div class="col-6 mb-2"><strong>Yakıt Türü:</strong> @Model.FuelType</div>
+                    <div class="col-6 mb-2"><strong>Vites:</strong> @Model.Gear</div>
+                    <div class="col-6 mb-2"><strong>Kasa Tipi:</strong> @Model.BodyType</div>
+                    <div class="col-6 mb-2"><strong>Renk:</strong> @Model.Colour</div>
+                    <div class="col-6 mb-2"><strong>Günlük Fiyat:</strong> <span class="text-success">@Model.DailyPrice ₺</span></div>
+                    <div class="col-6 mb-2"><strong>Haftalık Fiyat:</strong> <span class="text-success">@Model.WeeklyPrice ₺</span></div>
+                    <div class="col-6 mb-2"><strong>Aylık Fiyat:</strong> <span class="text-success">@Model.MonthlyPrice ₺</span></div>
+                </div>
+
+          
+                <div class="mt-4">
+                    <h6 class="fw-semibold text-secondary">🔐 Güvenlik Özellikleri</h6>
+                    <p class="text-muted small">@Model.Security</p>
+
+                    <h6 class="fw-semibold text-secondary">🛋️ İç Donanım</h6>
+                    <p class="text-muted small">@Model.InternalEquipment</p>
+
+                    <h6 class="fw-semibold text-secondary">🚗 Dış Donanım</h6>
+                    <p class="text-muted small">@Model.ExternalEquipment</p>
+                </div>
+
+                
+                <div class="mt-4 d-flex flex-wrap gap-2">
+                    <a asp-controller="Car" asp-action="List" class="btn btn-outline-secondary btn-sm px-3 shadow-sm">← Geri Dön</a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-controller="Car" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm px-3 shadow-sm">Güncelle</a>
+                        <a asp-controller="Car" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger btn-sm px-3 shadow-sm">Sil</a>
+
+                       
+                    }
+                    else
+                    {
+
+                        
+                         <a asp-controller="Rental" asp-action="RentCar" asp-route-id="@Model.Id" class="btn btn-warning btn-sm px-3 shadow-sm">Kirala 🚗</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
