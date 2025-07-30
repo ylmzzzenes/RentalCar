@@ -1,0 +1,123 @@
+﻿@model dynamic
+
+<style>
+    .option-pill {
+        border: 1px solid #ccc;
+        border-radius: 25px;
+        padding: 6px 14px;
+        font-size: 0.95rem;
+        background-color: #f8f9fa;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.2s;
+    }
+
+        .option-pill:hover {
+            background-color: #e2e6ea;
+        }
+
+    .option-group {
+        margin-bottom: 2rem;
+    }
+
+        .option-group h6 {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+    .pill-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .option-pill input[type="checkbox"] {
+        accent-color: #0d6efd;
+    }
+</style>
+
+
+<div class="option-group">
+    <h6>Yakıt Türü</h6>
+    <div class="pill-container">
+        @foreach (var item in Model.FuelType)
+        {
+            <label class="option-pill">
+                <input type="checkbox" name="SelectedFuelType" value="@((int)item)" />
+                @item
+            </label>
+        }
+    </div>
+</div>
+
+
+<div class="option-group">
+    <h6>Vites Türü</h6>
+    <div class="pill-container">
+        @foreach (var item in Model.Gear)
+        {
+            <label class="option-pill">
+                <input type="checkbox" name="SelectedGear" value="@((int)item)" />
+                @item
+            </label>
+        }
+    </div>
+</div>
+
+<div class="option-group">
+    <h6>Kasa Tipi</h6>
+    <div class="pill-container">
+        @foreach (var item in Model.BodyType)
+        {
+            <label class="option-pill">
+                <input type="checkbox" name="SelectedBodyType" value="@((int)item)" />
+                @item
+            </label>
+        }
+    </div>
+</div>
+
+
+<div class="option-group">
+    <h6>Güvenlik Özellikleri</h6>
+    <div class="pill-container">
+        @foreach (var item in Model.Security)
+        {
+            <label class="option-pill">
+                <input type="checkbox" name="SelectedSecurity" value="@((int)item)" />
+                @item
+            </label>
+        }
+    </div>
+</div>
+
+
+<div class="option-group">
+    <h6>İç Donanım</h6>
+    <div class="pill-container">
+        @foreach (var item in Model.InternalEquipment)
+        {
+            <label class="option-pill">
+                <input type="checkbox" name="SelectedInternal" value="@((int)item)" />
+                @item
+            </label>
+        }
+    </div>
+</div>
+
+
+<div class="option-group">
+    <h6>Dış Donanım</h6>
+    <div class="pill-container">
+        @foreach (var item in Model.ExternalEquipment)
+        {
+            <label class="option-pill">
+                <input type="checkbox" name="SelectedExternal" value="@((int)item)" />
+                @item
+            </label>
+        }
+    </div>
+</div>

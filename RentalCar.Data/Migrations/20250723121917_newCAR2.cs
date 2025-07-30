@@ -1,0 +1,28 @@
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace RentalCar.Data.Migrations
+{
+    /// <inheritdoc />
+    public partial class newCAR2 : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.RenameColumn(
+                name: "ImageUrl",
+                table: "Cars",
+                newName: "ImageUrls");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.RenameColumn(
+                name: "ImageUrls",
+                table: "Cars",
+                newName: "ImageUrl");
+        }
+    }
+}

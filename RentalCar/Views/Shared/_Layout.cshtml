@@ -1,0 +1,119 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using RentalCar.Data.Models  
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CarSales</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .navbar-custom {
+            background-color: #fff;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: #e2a100;
+        }
+
+        .nav-link {
+            color: #333;
+            font-weight: 500;
+        }
+
+            .nav-link:hover {
+                color: #e2a100;
+            }
+
+        main {
+            min-height: 80vh;
+        }
+
+        footer {
+            font-size: 0.9rem;
+            color: #888;
+            padding: 1rem 0;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-custom shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">🚗 CarSales</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                
+                <ul class="navbar-nav me-auto">
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        var user = await UserManager.GetUserAsync(User);
+                        
+                        <li class="nav-item"><a class="nav-link" asp-controller="Car" asp-action="Index">Araç Ekle</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Car" asp-action="List">Araçlar</a></li>
+                       
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="About">Hakkımızda</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Logout">Çıkış</a></li>
+                        <li class="nav-item">
+                            <span class="nav-link text-primary  ">@user.FirstName @user.LastName</span>
+                        </li>
+                    }
+                    else
+                    {
+                    
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="About">Hakkımızda</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Kayıt</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Giriş</a></li>
+                    }
+                </ul>
+
+                    
+                    
+                    
+                   
+                    
+                </ul>
+
+                <form asp-controller="Car" asp-action="List" method="get" class="d-flex" role="search">
+                    <input class="form-control form-control-sm me-2" type="search" name="searchString" placeholder="Ara..." aria-label="Search">
+                    <button class="btn btn-outline-warning btn-sm" type="submit">🔍</button>
+                </form>
+
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        @RenderBody()
+    </main>
+
+    <footer class="text-center">
+        © 2025 CarSales - Tüm hakları saklıdır.
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

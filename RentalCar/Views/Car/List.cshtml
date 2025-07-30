@@ -1,0 +1,113 @@
+﻿@using RentalCar.Data.Enums
+@model List<RentalCar.Data.Models.Car>
+
+<div class="row">
+  
+    <div class="col-md-3 mb-4">
+        <div class="bg-light border rounded-4 shadow-sm p-4">
+            <h5 class="fw-bold mb-4 text-secondary text-center">🔍 Araç Filtrele</h5>
+
+            <form method="get" asp-controller="Car" asp-action="List" class="needs-validation" novalidate>
+                <input type="text" name="brand" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Marka" />
+                <input type="text" name="model" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Model" />
+                <input type="text" name="colour" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Renk" />
+
+                <select name="fuelType" class="form-select form-select-sm mb-3 shadow-sm">
+                    <option value="">Yakıt Türü</option>
+                    @foreach (var fuel in Enum.GetValues(typeof(FuelType)))
+                    {
+                        <option value="@fuel">@fuel</option>
+                    }
+                </select>
+
+                <select name="gear" class="form-select form-select-sm mb-3 shadow-sm">
+                    <option value="">Vites Türü</option>
+                    @foreach (var g in Enum.GetValues(typeof(Gear)))
+                    {
+                        <option value="@g">@g</option>
+                    }
+                </select>
+
+                <select name="bodyType" class="form-select form-select-sm mb-3 shadow-sm">
+                    <option value="">Kasa Tipi</option>
+                    @foreach (var body in Enum.GetValues(typeof(BodyType)))
+                    {
+                        <option value="@body">@body</option>
+                    }
+                </select>
+
+                <input type="number" name="year" class="form-control form-control-sm mb-4 shadow-sm" placeholder="Yıl" />
+
+                <button class="btn btn-warning w-100 fw-semibold shadow-sm btn-sm">Filtrele</button>
+            </form>
+        </div>
+    </div>
+
+
+
+    <div class="col-md-9">
+        @if (Model != null && Model.Any())
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+                @foreach (var car in Model)
+                {
+                    <div class="col">
+                        <div class="card h-100 shadow-sm border-0 rounded-4">
+                            <div id="carCarousel-@car.Id" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    @{
+                                        var images = car.ImageUrls?.Split(',') ?? Array.Empty<string>();
+                                        for (int i = 0; i < images.Length; i++)
+                                        {
+                                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                                <img src="~/Images/Upload/@images[i]"
+                                                     class="d-block w-100 img-fluid rounded-top"
+                                                     alt="@car.Brand @car.Model"
+                                                     style="height: 160px; object-fit: cover;" />
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carCarousel-@car.Id" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon"></span>
+                                    <span class="visually-hidden">Önceki</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carCarousel-@car.Id" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon"></span>
+                                    <span class="visually-hidden">Sonraki</span>
+                                </button>
+                            </div>
+
+                            <div class="card-body py-3 px-3">
+                                <h6 class="card-title fw-semibold mb-2 text-dark small">@car.Brand @car.Model</h6>
+                                <p class="card-text text-muted small mb-2">
+                                    Renk: @car.Colour<br />
+                                    Yıl: @car.Year
+                                </p>
+                                <div class="d-grid gap-2">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-primary btn-sm">Detaylar</a>
+                                        <a asp-controller="Car" asp-action="Edit" asp-route-id="@car.Id" class="btn btn-outline-secondary btn-sm">Güncelle</a>
+                                        <a asp-controller="Car" asp-action="Delete" asp-route-id="@car.Id" class="btn btn-outline-danger btn-sm">Sil</a>
+
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-primary btn-sm">Detaylar</a>
+                                    }
+                                    
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning text-center">Gösterilecek araç bulunamadı.</div>
+        }
+    </div>
+</div>
