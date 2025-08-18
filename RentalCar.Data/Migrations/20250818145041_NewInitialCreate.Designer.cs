@@ -12,8 +12,8 @@ using RentalCar.Data.Dbcontexts;
 namespace RentalCar.Data.Migrations
 {
     [DbContext(typeof(RentalCarContext))]
-    [Migration("20250724124203_RentalNew11")]
-    partial class RentalNew11
+    [Migration("20250818145041_NewInitialCreate")]
+    partial class NewInitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -113,13 +113,7 @@ namespace RentalCar.Data.Migrations
                     b.Property<int>("CarId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("DailyPrice")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("Duration")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("MonthlyPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("RentalType")
@@ -129,9 +123,6 @@ namespace RentalCar.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("TotalPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("WeeklyPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");

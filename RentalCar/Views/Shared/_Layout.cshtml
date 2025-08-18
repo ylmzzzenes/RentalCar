@@ -1,8 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using RentalCar.Data.Models  
 
-@inject UserManager<ApplicationUser> UserManager
-@inject SignInManager<ApplicationUser> SignInManager
+
 
 <!DOCTYPE html>
 <html lang="tr">
@@ -67,26 +66,19 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 
                 <ul class="navbar-nav me-auto">
-                    @if (SignInManager.IsSignedIn(User))
-                    {
-                        var user = await UserManager.GetUserAsync(User);
+                 
                         
                         <li class="nav-item"><a class="nav-link" asp-controller="Car" asp-action="Index">Araç Ekle</a></li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Car" asp-action="List">Araçlar</a></li>
                        
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="About">Hakkımızda</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Logout">Çıkış</a></li>
-                        <li class="nav-item">
-                            <span class="nav-link text-primary  ">@user.FirstName @user.LastName</span>
-                        </li>
-                    }
-                    else
-                    {
+                        
+                        
+                   
+                   
                     
-                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="About">Hakkımızda</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Kayıt</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Giriş</a></li>
-                    }
+                
+                   
                 </ul>
 
                     
