@@ -9,7 +9,7 @@ namespace RentalCar.Data.Dbcontexts
         public RentalCarContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<RentalCarContext>();
-            optionsBuilder.UseSqlServer("Server=(localdb)\\enesdb;Database=enesyilmazdb;Trusted_Connection=True;TrustServerCertificate=True;");
+            optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=RentalCar;Trusted_Connection=True;MultipleActiveResultSets=True;TrustServerCertificate=True;");
 
             return new RentalCarContext(optionsBuilder.Options);
         } 
