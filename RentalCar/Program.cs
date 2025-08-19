@@ -20,9 +20,19 @@ namespace RentalCar
                 options.UseSqlServer(builder.Configuration.GetConnectionString("RentalCarDb"));
             });
 
-            builder.Services.AddIdentity<AppUser, AppRole>().
+            builder.Services.AddIdentity<AppUser,AppRole>().
                 AddEntityFrameworkStores<RentalCarContext>().
                 AddDefaultTokenProviders();
+
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.User.RequireUniqueEmail = true;
+            });
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddScoped<CarServices>();
