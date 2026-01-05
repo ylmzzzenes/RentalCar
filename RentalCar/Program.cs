@@ -24,6 +24,35 @@ namespace RentalCar
                 AddEntityFrameworkStores<RentalCarContext>().
                 AddDefaultTokenProviders();
 
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.User.RequireUniqueEmail = true;
+            });
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/AccesDenied";
+                options.SlidingExpiration = true;
+                options.ExpireTimeSpan = TimeSpan.FromDays(30);
+            });
+
+
+            builder.Services.AddScoped<IEmailSender, SmtpEmailSender>(i =>
+                new SmtpEmailSender(
+                builder.Configuration["EmailSender:Host"],
+                builder.Configuration.GetValue<int>("EmailSender:Port"),
+                builder.Configuration.GetValue<bool>("EmailSender:EnableSSL"),
+                builder.Configuration["EmailSender:UserName"],
+                builder.Configuration["EmailSender:Password"]
+
+            ));
+
             builder.Services.AddControllersWithViews();
             builder.Services.AddScoped<CarServices>();
             builder.Services.AddScoped<RentalServices>();

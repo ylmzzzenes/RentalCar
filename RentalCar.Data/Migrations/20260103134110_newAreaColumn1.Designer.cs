@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RentalCar.Data.Dbcontexts;
 
@@ -11,9 +12,11 @@ using RentalCar.Data.Dbcontexts;
 namespace RentalCar.Data.Migrations
 {
     [DbContext(typeof(RentalCarContext))]
-    partial class RentalCarContextModelSnapshot : ModelSnapshot
+    [Migration("20260103134110_newAreaColumn1")]
+    partial class newAreaColumn1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -237,20 +240,54 @@ namespace RentalCar.Data.Migrations
                     b.Property<string>("Brand")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Colour")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("DailyPrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("DriveType")
+                        .HasColumnType("int");
+
                     b.Property<int>("ExternalEquipment")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("Fiyat")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("FuelType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Gear")
+                        .HasColumnType("int");
+
                     b.Property<string>("ImageUrls")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("InternalEquipment")
                         .HasColumnType("int");
+
+                    b.Property<int?>("Kilometre")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("Lt_100Km")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Marka")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Model")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModelAdi")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModelRaw")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnType("datetime2");
@@ -258,10 +295,25 @@ namespace RentalCar.Data.Migrations
                     b.Property<decimal>("MonthlyPrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<double?>("MotorHacmi")
+                        .HasColumnType("float");
+
+                    b.Property<string>("MotorKodu")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Paket")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Plate")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("SanzimanKodu")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Security")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Vergi")
                         .HasColumnType("int");
 
                     b.Property<string>("Vin")
@@ -270,98 +322,8 @@ namespace RentalCar.Data.Migrations
                     b.Property<decimal>("WeeklyPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("aciklama")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("aciklama_kisa")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("cekis")
-                        .HasColumnType("int");
-
-                    b.Property<string>("degisenBoyanan")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("donanimSeviyesi")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("fiyat")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("fiyat_max")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("fiyat_min")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("fiyat_tahmin")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("hasarKaydi")
-                        .HasColumnType("int");
-
-                    b.Property<string>("kasaTipi")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("kilometre")
-                        .HasColumnType("int");
-
-                    b.Property<double?>("lt_100km")
-                        .HasColumnType("float");
-
-                    b.Property<string>("marka")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("model")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("model_adi")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("modelraw")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("motorGuc_hp")
-                        .HasColumnType("int");
-
-                    b.Property<double?>("motorHacmi")
-                        .HasColumnType("float");
-
-                    b.Property<string>("motor_kodu")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("paket")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("renk")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("sahipSayisi")
-                        .HasColumnType("int");
-
-                    b.Property<string>("sanziman_kodu")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("sehir")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("servisGecmisi")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("tork_nm")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("vergi")
-                        .HasColumnType("int");
-
-                    b.Property<int>("vites")
-                        .HasColumnType("int");
-
-                    b.Property<int>("yakitTuru")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("yil")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("Year")
+                        .HasColumnType("date");
 
                     b.HasKey("Id");
 

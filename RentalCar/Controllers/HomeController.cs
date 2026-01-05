@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using RentalCar.Data.Enums;
-using RentalCar.Data.Models;
 using RentalCar.Data.Services;
 
 namespace RentalCar.Controllers
 {
-   
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly CarServices _carsServices;
@@ -16,50 +14,85 @@ namespace RentalCar.Controllers
         {
             _carsServices = carServices;
         }
-        public async Task<IActionResult> Index()
+
+        [HttpGet]
+        public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
         {
-            var vitrinArabalar= await _carsServices.GetRandomAsync(5);
+            var vitrinArabalar = await _carsServices.GetRandomAsync(5);
             return View(vitrinArabalar);
         }
 
+        [HttpGet]
         public IActionResult About()
         {
-            return View();  
+            return View();
         }
 
+        [HttpGet]
         public IActionResult Error()
         {
-            return View();  
+            return View();
         }
-        public async Task<IActionResult> List(string? brand, string? model, string? colour, FuelType? fuelType, Gear? gear, BodyType? bodyType, DateOnly? year, string ImageUrl)
-        {
-            var query = (await _carsServices.GetAllAsync()).AsQueryable();
 
+        [HttpGet]
+        public async Task<IActionResult> List(
+            string? brand,
+            string? model,
+            string? renk,
+            FuelType? yakitTuru,
+            Gear? vites,
+            BodyType? bodyType,
+            DateTime? yil,
+            string? imageUrl,
+            string? searchString,
+            CancellationToken cancellationToken = default)
+        {
+            var all = await _carsServices.GetAllAsync();
+            if (all == null)
+                return Problem("Cars is null");
+
+            var query = all.AsQueryable();
+
+            // Genel arama (opsiyonel)
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                var s = searchString.Trim();
+                query = query.Where(c =>
+                    (c.Brand != null && c.Brand.Contains(s, StringComparison.OrdinalIgnoreCase)) ||
+                    (c.model != null && c.model.Contains(s, StringComparison.OrdinalIgnoreCase)) ||
+                    (c.renk != null && c.renk.Contains(s, StringComparison.OrdinalIgnoreCase)) ||
+                    (c.marka != null && c.marka.Contains(s, StringComparison.OrdinalIgnoreCase)) ||
+                    (c.model_adi != null && c.model_adi.Contains(s, StringComparison.OrdinalIgnoreCase)) ||
+                    (c.paket != null && c.paket.Contains(s, StringComparison.OrdinalIgnoreCase))
+                );
+            }
+
+            // Filtreler
             if (!string.IsNullOrWhiteSpace(brand))
-                query = query.Where(c => c.Brand.Contains(brand, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(c => c.Brand != null && c.Brand.Contains(brand, StringComparison.OrdinalIgnoreCase));
 
             if (!string.IsNullOrWhiteSpace(model))
-                query = query.Where(c => c.Model.Contains(model, StringComparison.OrdinalIgnoreCase));
+                query = query.Where(c => c.model != null && c.model.Contains(model, StringComparison.OrdinalIgnoreCase));
 
-            if (!string.IsNullOrWhiteSpace(colour))
-                query = query.Where(c => c.Colour.Contains(colour, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(renk))
+                query = query.Where(c => c.renk != null && c.renk.Contains(renk, StringComparison.OrdinalIgnoreCase));
 
-            if (fuelType != null)
-                query = query.Where(c => c.FuelType == fuelType);
+            if (yakitTuru.HasValue)
+                query = query.Where(c => c.yakitTuru == yakitTuru.Value);
 
-            if (gear != null)
-                query = query.Where(c => c.Gear == gear);
+            if (vites.HasValue)
+                query = query.Where(c => c.vites == vites.Value);
 
-            if (bodyType != null)
-                query = query.Where(c => c.BodyType == bodyType);
+            if (bodyType.HasValue)
+                query = query.Where(c => c.BodyType == bodyType.Value);
 
-            if (year != null)
-                query = query.Where(c => c.Year == year);
-            if (ImageUrl != null)
-                query = query.Where(c => c.ImageUrls == ImageUrl);
+            if (yil.HasValue)
+                query = query.Where(c => c.yil == yil.Value);
+
+            if (!string.IsNullOrWhiteSpace(imageUrl))
+                query = query.Where(c => c.ImageUrls != null && c.ImageUrls.Contains(imageUrl, StringComparison.OrdinalIgnoreCase));
 
             return View(query.ToList());
         }
-        
     }
 }

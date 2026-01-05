@@ -12,7 +12,7 @@
                 {
                     <img src="~/Images/Upload/@img"
                          class="img-thumbnail m-2"
-                         alt="@Model.Car.Brand @Model.Car.Model"
+                         alt="@Model.Car.Brand @Model.Car.model"
                          style="max-height: 200px; object-fit: cover;" />
                 }
             }
@@ -23,15 +23,15 @@
         </div>
 
         <div class="col-md-7">
-            <h3 class="fw-bold mb-3">@Model.Car?.Brand @Model.Car?.Model Kiralama</h3>
+            <h3 class="fw-bold mb-3">@Model.Car?.Brand @Model.Car?.model Kiralama</h3>
 
             <div class="row">
                 <div class="col-6 mb-2"><strong>Plaka:</strong> @Model.Car?.Plate</div>
-                <div class="col-6 mb-2"><strong>Yıl:</strong> @Model.Car?.Year</div>
-                <div class="col-6 mb-2"><strong>Yakıt Türü:</strong> @Model.Car?.FuelType</div>
-                <div class="col-6 mb-2"><strong>Vites:</strong> @Model.Car?.Gear</div>
+                <div class="col-6 mb-2"><strong>Yıl:</strong> @Model.Car?.yil</div>
+                <div class="col-6 mb-2"><strong>Yakıt Türü:</strong> @Model.Car?.yakitTuru</div>
+                <div class="col-6 mb-2"><strong>Vites:</strong> @Model.Car?.vites</div>
                 <div class="col-6 mb-2"><strong>Kasa Tipi:</strong> @Model.Car?.BodyType</div>
-                <div class="col-6 mb-2"><strong>Renk:</strong> @Model.Car?.Colour</div>
+                <div class="col-6 mb-2"><strong>Renk:</strong> @Model.Car?.renk</div>
             </div>
 
             <div class="mt-3">

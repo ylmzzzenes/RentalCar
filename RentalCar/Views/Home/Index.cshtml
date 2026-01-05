@@ -7,7 +7,9 @@
 
 
 <div class="bg-light shadow-lg p-5 rounded-4 text-center mb-5">
-    <h1 class="display-5 fw-bold text-dark">🚗 Hayalinizdeki Araba Burada!</h1>
+    <h1 class="display-5 fw-bold text-dark">
+        📰 Hayalinizdeki Araç Burada!
+    </h1>
     <p class="lead text-muted mb-4">Binlerce ilan arasında dilediğiniz aracı hızlıca bulun. Hemen keşfetmeye başlayın!</p>
 
     <div class="mx-auto" style="max-width: 700px;">
@@ -69,11 +71,11 @@
                     <div class="card h-100 shadow-sm border-0 rounded-4">
                         <img src="~/Images/Upload/@(car.ImageUrls?.Split(',').FirstOrDefault())"
                              class="card-img-top rounded-top-4"
-                             alt="@car.Brand @car.Model"
+                             alt="@car.Brand @car.model"
                              style="height: 180px; object-fit: cover;" />
                         <div class="card-body text-center">
-                            <h6 class="card-title fw-bold text-dark">@car.Brand @car.Model</h6>
-                            <p class="card-text text-muted small">Renk: @car.Colour | Yıl: @car.Year</p>
+                            <h6 class="card-title fw-bold text-dark">@car.Brand @car.model</h6>
+                            <p class="card-text text-muted small">Renk: @car.renk | Yıl: @car.yil</p>
                             <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-warning btn-sm shadow-sm">İlan Detay</a>
                         </div>
                     </div>

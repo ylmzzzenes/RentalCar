@@ -5,65 +5,153 @@
     ViewData["Title"] = "Araç Ekle";
 }
 
-<div class="container px-5">
-   
-    <div class="card shadow-lg border-0 bg-light p-5 rounded-4">
-       
-        <h2 class="mb-4 text-center fw-bold text-dark">🚘 Yeni Araç Ekle</h2>
-
-        <form asp-action="Create" method="post" enctype="multipart/form-data">
-            <div class="row g-4">
-               
-                <div class="col-md-6">
-                    <label asp-for="Vin" class="form-label fw-semibold">Şasi Numarası</label>
-                    <input asp-for="Vin" class="form-control form-control-sm shadow-sm" />
-                    <span asp-validation-for="Vin" class="text-danger small"></span>
-                </div>
-
-                <div class="col-md-6">
-                    <label asp-for="Brand" class="form-label fw-semibold">Marka</label>
-                    <input asp-for="Brand" class="form-control form-control-sm shadow-sm" />
-                    <span asp-validation-for="Brand" class="text-danger small"></span>
-                </div>
-
-                <div class="col-md-6">
-                    <label asp-for="Model" class="form-label fw-semibold">Model</label>
-                    <input asp-for="Model" class="form-control form-control-sm shadow-sm" />
-                    <span asp-validation-for="Model" class="text-danger small"></span>
-                </div>
-
-                <div class="col-md-6">
-                    <label asp-for="Year" class="form-label fw-semibold">Yıl</label>
-                    <input asp-for="Year" class="form-control form-control-sm shadow-sm" type="date" />
-                    <span asp-validation-for="Year" class="text-danger small"></span>
-                </div>
-
-                <div class="col-md-6">
-                    <label asp-for="Colour" class="form-label fw-semibold">Renk</label>
-                    <input asp-for="Colour" class="form-control form-control-sm shadow-sm" />
-                    <span asp-validation-for="Colour" class="text-danger small"></span>
-                </div>
-
-                <div class="col-md-6">
-                    <label asp-for="Plate" class="form-label fw-semibold">Plaka</label>
-                    <input asp-for="Plate" class="form-control form-control-sm shadow-sm" />
-                    <span asp-validation-for="Plate" class="text-danger small"></span>
-                </div>
-
-                <div class="col-md-12">
-                    <label asp-for="ImageUrls" class="form-label fw-semibold">Araç Görseli</label>
-                    <input asp-for="ImageUrls" class="form-control form-control-sm shadow-sm" type="file" multiple />
-                    <span asp-validation-for="ImageUrls" class="text-danger small"></span>
-                </div>
-
-                <div class="col-md-12">
-                    @await Component.InvokeAsync("EnumSelector")
-                </div>
-            </div>
-
-            <div class="text-end mt-4">
-                <button type="submit" class="btn btn-warning btn-sm px-4 shadow-sm">Kaydet</button>
-            </div>
-        </form>
+<form asp-controller="Car" asp-action="Create" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="col-md-12">
+        <label asp-for="model" class="form-label fw-semibold">Model </label>
+        <input asp-for="model" class="form-control form-control-sm shadow-sm"
+               placeholder="Örn: Ford Fiesta 1.0 EcoBoost ST-Line" />
+        <span asp-validation-for="model" class="text-danger small"></span>
     </div>
-</div>
+
+    <div class="col-md-4">
+        <label asp-for="marka" class="form-label fw-semibold">Marka</label>
+        <input asp-for="marka" class="form-control form-control-sm shadow-sm" placeholder="Ford" />
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="model_adi" class="form-label fw-semibold">Model Adı </label>
+        <input asp-for="model_adi" class="form-control form-control-sm shadow-sm" placeholder="Fiesta" />
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="paket" class="form-label fw-semibold">Paket </label>
+        <input asp-for="paket" class="form-control form-control-sm shadow-sm" placeholder="ST-Line" />
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <label asp-for="motor_kodu" class="form-label fw-semibold">Motor Kodu </label>
+        <input asp-for="motor_kodu" class="form-control form-control-sm shadow-sm" placeholder="EcoBoost / TDI / TSI" />
+    </div>
+
+    <select name="cekis" class="form-select form-select-sm mb-3 shadow-sm">
+        <option value="">Çekiş</option>
+        @foreach (var d in Enum.GetValues(typeof(DriveType)))
+        {
+            <option value="@d">@d</option>
+        }
+    </select>
+
+    <div class="col-md-4">
+        <label asp-for="sanziman_kodu" class="form-label fw-semibold">Şanzıman Kodu </label>
+        <input asp-for="sanziman_kodu" class="form-control form-control-sm shadow-sm" placeholder="DSG / DCT / CVT / MT" />
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="yil" class="form-label fw-semibold">Yıl </label>
+        <input asp-for="yil" type="date" class="form-control form-control-sm shadow-sm" placeholder="2018" />
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <label asp-for="fiyat" class="form-label fw-semibold">Fiyat (TL)</label>
+        <input asp-for="fiyat" type="number" class="form-control form-control-sm shadow-sm" placeholder="980000" />
+    </div>
+
+    <select name="vites" class="form-select form-select-sm mb-3 shadow-sm">
+        <option value="">Vites</option>
+        @foreach (var g in Enum.GetValues(typeof(Gear)))
+        {
+            <option value="@g">@g</option>
+        }
+    </select>
+
+
+    <div class="col-md-3 mb-3">
+        <label asp-for="kilometre" class="form-label fw-semibold">Kilometre</label>
+        <input asp-for="kilometre" type="number" class="form-control form-control-sm shadow-sm" placeholder="11000" />
+    </div>
+
+    <select name="yakitTuru" class="form-select form-select-sm mb-3 shadow-sm">
+        <option value="">Yakit Türü</option>
+        @foreach (var y in Enum.GetValues(typeof(FuelType)))
+        {
+            <option value="@y">@y</option>
+        }
+    </select>
+
+    <div class="col-md-3">
+        <label asp-for="vergi" class="form-label fw-semibold">Vergi</label>
+        <input asp-for="vergi" type="number" class="form-control form-control-sm shadow-sm" placeholder="145" />
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="lt_100km" class="form-label fw-semibold">Lt/100km</label>
+        <input asp-for="lt_100km" type="number" step="0.1" class="form-control form-control-sm shadow-sm" placeholder="4.5" />
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="motorHacmi" class="form-label fw-semibold">Motor Hacmi</label>
+        <input asp-for="motorHacmi" type="number" step="0.1" class="form-control form-control-sm shadow-sm" placeholder="1.0" />
+    </div>
+    <div class="col-md-3 mb-3">
+        <label asp-for="renk" class="form-label fw-semibold">Renk</label>
+        <input asp-for="renk" class="form-control form-control-sm shadow-sm" placeholder="Kırmızı/Siyah/Mavi/Beyaz" />
+    </div>
+    <div class="col-md-3 mb-3">
+        <label asp-for="sehir" class="form-label fw-semibold">Şehir</label>
+        <input asp-for="sehir" class="form-control form-control-sm shadow-sm" placeholder="İstanbul" />
+    </div>
+    <div class="col-md-3 mb-3">
+    <label asp-for="kasaTipi" class="form-label fw-semibold">Kasa Tipi</label>
+    <input asp-for="kasaTipi" class="form-control form-control-sm shadow-sm" placeholder="SUV" />
+    </div>
+    <div class="col-md-3 mb-3">
+        <label asp-for="donanimSeviyesi" class="form-label fw-semibold">Donanım Seviyesi</label>
+        <input asp-for="donanimSeviyesi" class="form-control form-control-sm shadow-sm" placeholder="Orta" />
+    </div>
+   
+    <div class="col-md-3 mb-3">
+        <label asp-for="motorGuc_hp" class="form-label fw-semibold">Motor Gücü</label>
+        <input asp-for="motorGuc_hp" class="form-control form-control-sm shadow-sm" placeholder="90" />
+    </div>
+  
+    <div class="col-md-3 mb-3">
+        <label asp-for="tork_nm" class="form-label fw-semibold">Tork</label>
+        <input asp-for="tork_nm" class="form-control form-control-sm shadow-sm" placeholder="300" />
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <label asp-for="hasarKaydi" class="form-label fw-semibold">Hasar Kaydı</label>
+        <input asp-for="hasarKaydi" class="form-control form-control-sm shadow-sm" placeholder="1/0" />
+    </div>
+    <div class="col-md-3 mb-3">
+        <label asp-for="degisenBoyanan" class="form-label fw-semibold">Değişen-Boyanan</label>
+        <input asp-for="degisenBoyanan" class="form-control form-control-sm shadow-sm" placeholder="3-4 parça" />
+    </div>
+    <div class="col-md-3 mb-3">
+        <label asp-for="sahipSayisi" class="form-label fw-semibold">Sahip Sayısı</label>
+        <input asp-for="sahipSayisi" class="form-control form-control-sm shadow-sm" placeholder="2" />
+    </div>
+    <div class="col-md-3 mb-3">
+        <label asp-for="servisGecmisi" class="form-label fw-semibold">Servis Geçmişi</label>
+        <input asp-for="servisGecmisi" class="form-control form-control-sm shadow-sm" placeholder="1" />
+    </div>
+
+    <div class="col-md-12 mb-3">
+        <label asp-for="ImageUrls" class="form-label fw-semibold">Araç Fotoğrafları</label>
+        <input asp-for="ImageUrls"
+               type="file"
+               multiple
+               accept="image/*"
+               class="form-control form-control-sm shadow-sm" />
+        <span asp-validation-for="ImageUrls" class="text-danger small"></span>
+        <div class="form-text">Birden fazla fotoğraf seçebilirsin (JPG/PNG).</div>
+    </div>
+
+
+    <div class="col-md-3 mb-3">
+        <button type="submit" class="btn btn-primary">Kaydet</button>
+
+    </div>
+</form>
+

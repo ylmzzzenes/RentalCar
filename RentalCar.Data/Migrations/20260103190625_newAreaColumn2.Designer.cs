@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RentalCar.Data.Dbcontexts;
 
@@ -11,9 +12,11 @@ using RentalCar.Data.Dbcontexts;
 namespace RentalCar.Data.Migrations
 {
     [DbContext(typeof(RentalCarContext))]
-    partial class RentalCarContextModelSnapshot : ModelSnapshot
+    [Migration("20260103190625_newAreaColumn2")]
+    partial class newAreaColumn2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -270,38 +273,11 @@ namespace RentalCar.Data.Migrations
                     b.Property<decimal>("WeeklyPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("aciklama")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("aciklama_kisa")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("cekis")
                         .HasColumnType("int");
 
-                    b.Property<string>("degisenBoyanan")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("donanimSeviyesi")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal?>("fiyat")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("fiyat_max")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("fiyat_min")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("fiyat_tahmin")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("hasarKaydi")
-                        .HasColumnType("int");
-
-                    b.Property<string>("kasaTipi")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("kilometre")
                         .HasColumnType("int");
@@ -321,9 +297,6 @@ namespace RentalCar.Data.Migrations
                     b.Property<string>("modelraw")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("motorGuc_hp")
-                        .HasColumnType("int");
-
                     b.Property<double?>("motorHacmi")
                         .HasColumnType("float");
 
@@ -336,20 +309,8 @@ namespace RentalCar.Data.Migrations
                     b.Property<string>("renk")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("sahipSayisi")
-                        .HasColumnType("int");
-
                     b.Property<string>("sanziman_kodu")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("sehir")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("servisGecmisi")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("tork_nm")
-                        .HasColumnType("int");
 
                     b.Property<int?>("vergi")
                         .HasColumnType("int");
@@ -360,8 +321,8 @@ namespace RentalCar.Data.Migrations
                     b.Property<int>("yakitTuru")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("yil")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("yil")
+                        .HasColumnType("date");
 
                     b.HasKey("Id");
 

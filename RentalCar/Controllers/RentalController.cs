@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RentalCar.Data.Dbcontexts;
 using RentalCar.Data.Enums;
 using RentalCar.Data.Models;
 using RentalCar.Data.Services;
@@ -14,86 +13,117 @@ namespace RentalCar.Controllers
         {
             _rentalServices = rentalServices;
         }
+
+  
         [HttpGet]
-        public async Task<IActionResult> RentCar(int id)
+        public async Task<IActionResult> RentCar(int id, CancellationToken cancellationToken = default)
         {
-            var car = await _rentalServices.GetCarByIdAsync(id);
+            var car = await _rentalServices.GetCarByIdAsync(id, cancellationToken);
             if (car == null) return NotFound();
 
             var model = new Rental
             {
                 CarId = car.Id,
-                Car = car
+                Car = car,
+                RentalType = RentalType.Daily,
+                Duration = 1
             };
 
             return View(model);
         }
 
-
+      
         [HttpPost]
-        public async Task<IActionResult> RentCar(int id, RentalType RentalType, decimal duration, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> RentCar(
+            int id,
+            RentalType rentalType,
+            decimal duration,
+            CancellationToken cancellationToken = default)
         {
             var car = await _rentalServices.GetCarByIdAsync(id, cancellationToken);
-            if (car == null)
-                return NotFound();
+            if (car == null) return NotFound();
 
-            decimal totalPrice = RentalType switch
+         
+            if (duration <= 0)
             {
-                RentalType.Daily => car.DailyPrice * duration,
-                RentalType.Weekly => car.WeeklyPrice * duration,
-                RentalType.Monthly => car.MonthlyPrice * duration,
-                RentalType.LongTerm => car.MonthlyPrice * 12,
-                _ => 0
-            };
+                ModelState.AddModelError(nameof(duration), "Süre 0 veya negatif olamaz.");
+                var backModel = new Rental { CarId = car.Id, Car = car, RentalType = rentalType, Duration = duration };
+                return View(backModel);
+            }
+
+            var totalPrice = CalculateTotalPrice(car, rentalType, duration);
 
             var rental = new Rental
             {
                 CarId = car.Id,
                 Car = car,
-                RentalType = RentalType,
-                Duration = duration,
+                RentalType = rentalType,
+                Duration = (rentalType == RentalType.LongTerm) ? 12 : duration,
                 TotalPrice = totalPrice
             };
-            await _rentalServices.CreateAsync(rental);
 
+            await _rentalServices.CreateAsync(rental, cancellationToken);
 
+            // Sonucu göster
             return View("RentalResult", rental);
         }
 
-
-
+    
         [HttpGet]
-        public async Task<IActionResult> RentalResult(int id)
+        public async Task<IActionResult> RentalResult(int carId, CancellationToken cancellationToken = default)
         {
-            var car = await _rentalServices.GetCarByIdAsync(id);
+            var car = await _rentalServices.GetCarByIdAsync(carId, cancellationToken);
             if (car == null) return NotFound();
 
-            return View(car); 
+            
+            var model = new Rental
+            {
+                CarId = car.Id,
+                Car = car,
+                RentalType = RentalType.Daily,
+                Duration = 1,
+                TotalPrice = 0
+            };
+
+            return View(model);
         }
 
-
-
+       
         [HttpPost]
-        public async Task<IActionResult> RentalResult(Rental rental)
+        public async Task<IActionResult> RentalResult(Rental rental, CancellationToken cancellationToken = default)
         {
-            var car = await _rentalServices.GetCarByIdAsync(rental.CarId);
+            var car = await _rentalServices.GetCarByIdAsync(rental.CarId, cancellationToken);
             if (car == null) return NotFound();
+
+            if (rental.Duration <= 0)
+            {
+                ModelState.AddModelError(nameof(rental.Duration), "Süre 0 veya negatif olamaz.");
+                rental.Car = car;
+                return View(rental);
+            }
 
             rental.Car = car;
 
-            decimal totalPrice = rental.RentalType switch
-            {
-                RentalType.Daily => car.DailyPrice * rental.Duration,
-                RentalType.Weekly => car.WeeklyPrice * rental.Duration,
-                RentalType.Monthly => car.MonthlyPrice * rental.Duration,
-                RentalType.LongTerm => car.MonthlyPrice * 12,
-                _ => 0
-            };
-
+            var totalPrice = CalculateTotalPrice(car, rental.RentalType, rental.Duration);
 
             ViewBag.TotalPrice = totalPrice;
-            return View("RentalSummary", rental);
 
+            
+            rental.TotalPrice = totalPrice;
+
+            return View("RentalSummary", rental);
+        }
+
+        private static decimal CalculateTotalPrice(Car car, RentalType rentalType, decimal duration)
+        {
+            return rentalType switch
+            {
+                RentalType.Daily => car.DailyPrice * duration,
+                RentalType.Weekly => car.WeeklyPrice * duration,
+                RentalType.Monthly => car.MonthlyPrice * duration,
+                RentalType.LongTerm => car.MonthlyPrice * 12,
+                _ => 0m
+            };
         }
     }
 }

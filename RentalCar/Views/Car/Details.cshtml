@@ -3,70 +3,201 @@
 @using RentalCar.Data.Models
 @model RentalCar.Data.Models.Car
 
+@{
+    string ShowOrDash(string? s) => string.IsNullOrWhiteSpace(s) ? "-" : s;
+
+    string NumOrDash(object? v)
+    {
+        if (v == null) return "-";
+        var s = v.ToString();
+        return string.IsNullOrWhiteSpace(s) ? "-" : s!;
+    }
+
+    string MoneyOrDash(decimal? v) => (v.HasValue && v.Value > 0) ? $"{v.Value:N2} ₺" : "-";
+
+    var hasPredict = Model.fiyat_tahmin != null && Model.fiyat_tahmin > 0;
+    var hasDesc = !string.IsNullOrWhiteSpace(Model.aciklama_kisa) || !string.IsNullOrWhiteSpace(Model.aciklama);
+}
 
 <div class="container my-5">
     <div class="card shadow-lg border-0 rounded-4 p-4 bg-light">
         <div class="row g-5 align-items-start">
 
-         
             <div class="col-md-5 text-center">
                 <div class="bg-white rounded-3 shadow-sm p-3">
-                    @foreach (var img in Model.ImageUrls.Split(','))
+                    @{
+                        var urls = (Model.ImageUrls ?? "")
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .ToList();
+                    }
+
+                    @if (urls.Any())
                     {
-                        <img src="~/Images/Upload/@img"
-                             class="img-fluid rounded-3 shadow-sm mb-3"
-                             alt="@Model.Brand @Model.Model"
-                             style="max-height: 180px; object-fit: cover;" />
+                        foreach (var img in urls)
+                        {
+                            <img src="~/Images/Upload/@img"
+                                 class="img-fluid rounded-3 shadow-sm mb-3"
+                                 alt="@ShowOrDash(Model.marka) @Model.yil"
+                                 style="max-height: 180px; object-fit: cover;" />
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-muted small">Görsel yok</div>
                     }
                 </div>
             </div>
 
-     
             <div class="col-md-7">
-                <h3 class="fw-bold mb-3 text-dark">@Model.Brand @Model.Model</h3>
+                <h3 class="fw-bold mb-3 text-dark">@ShowOrDash(Model.marka) @ShowOrDash(Model.model)</h3>
 
                 <div class="row text-muted small">
-                    <div class="col-6 mb-2"><strong>Plaka:</strong> @Model.Plate</div>
-                    <div class="col-6 mb-2"><strong>Yıl:</strong> @Model.Year</div>
-                    <div class="col-6 mb-2"><strong>Yakıt Türü:</strong> @Model.FuelType</div>
-                    <div class="col-6 mb-2"><strong>Vites:</strong> @Model.Gear</div>
+                    <div class="col-6 mb-2"><strong>Yıl:</strong> @Model.yil</div>
+                    <div class="col-6 mb-2"><strong>Yakıt Türü:</strong> @Model.yakitTuru</div>
+                    <div class="col-6 mb-2"><strong>Vites:</strong> @Model.vites</div>
                     <div class="col-6 mb-2"><strong>Kasa Tipi:</strong> @Model.BodyType</div>
-                    <div class="col-6 mb-2"><strong>Renk:</strong> @Model.Colour</div>
-                    <div class="col-6 mb-2"><strong>Günlük Fiyat:</strong> <span class="text-success">@Model.DailyPrice ₺</span></div>
-                    <div class="col-6 mb-2"><strong>Haftalık Fiyat:</strong> <span class="text-success">@Model.WeeklyPrice ₺</span></div>
-                    <div class="col-6 mb-2"><strong>Aylık Fiyat:</strong> <span class="text-success">@Model.MonthlyPrice ₺</span></div>
+                    <div class="col-6 mb-2"><strong>Renk:</strong> @ShowOrDash(Model.renk)</div>
+
+                    <div class="col-6 mb-2"><strong>Günlük Fiyat:</strong> <span class="text-success">@MoneyOrDash(Model.DailyPrice)</span></div>
+                    <div class="col-6 mb-2"><strong>Haftalık Fiyat:</strong> <span class="text-success">@MoneyOrDash(Model.WeeklyPrice)</span></div>
+                    <div class="col-6 mb-2"><strong>Aylık Fiyat:</strong> <span class="text-success">@MoneyOrDash(Model.MonthlyPrice)</span></div>
                 </div>
 
-          
+                <hr class="my-4" />
+
+                <h6 class="fw-semibold text-secondary mb-3">📌 Araç Detayları</h6>
+                <div class="row text-muted small">
+                    <div class="col-6 mb-2"><strong>Marka:</strong> @ShowOrDash(Model.marka)</div>
+                    <div class="col-6 mb-2"><strong>Model Adı:</strong> @ShowOrDash(Model.model_adi)</div>
+
+                    <div class="col-6 mb-2"><strong>Paket:</strong> @ShowOrDash(Model.paket)</div>
+                    <div class="col-6 mb-2"><strong>Motor Kodu:</strong> @ShowOrDash(Model.motor_kodu)</div>
+
+                    <div class="col-6 mb-2"><strong>Şanzıman Kodu:</strong> @ShowOrDash(Model.sanziman_kodu)</div>
+                    <div class="col-6 mb-2"><strong>Çekiş:</strong> @Model.cekis</div>
+
+                    <div class="col-6 mb-2"><strong>Kilometre:</strong> @NumOrDash(Model.kilometre)</div>
+                    <div class="col-6 mb-2"><strong>Vergi:</strong> @NumOrDash(Model.vergi)</div>
+
+                    <div class="col-6 mb-2"><strong>Lt/100km:</strong> @NumOrDash(Model.lt_100km)</div>
+                    <div class="col-6 mb-2"><strong>Motor Hacmi:</strong> @NumOrDash(Model.motorHacmi)</div>
+
+                    <div class="col-6 mb-2"><strong>Motor Gücü (HP):</strong> @NumOrDash(Model.motorGuc_hp)</div>
+                    <div class="col-6 mb-2"><strong>Tork (Nm):</strong> @NumOrDash(Model.tork_nm)</div>
+
+                    <div class="col-6 mb-2"><strong>Hasar Kaydı:</strong> @NumOrDash(Model.hasarKaydi)</div>
+                    <div class="col-6 mb-2"><strong>Değişen/Boyanan:</strong> @ShowOrDash(Model.degisenBoyanan)</div>
+
+                    <div class="col-6 mb-2"><strong>Servis Geçmişi:</strong> @NumOrDash(Model.servisGecmisi)</div>
+                    <div class="col-6 mb-2"><strong>Sahip Sayısı:</strong> @NumOrDash(Model.sahipSayisi)</div>
+
+                    <div class="col-6 mb-2"><strong>Donanım Seviyesi:</strong> @ShowOrDash(Model.donanimSeviyesi)</div>
+                    <div class="col-6 mb-2"><strong>Şehir:</strong> @ShowOrDash(Model.sehir)</div>
+
+                    <div class="col-12 mb-2"><strong>Model (Raw):</strong> @ShowOrDash(Model.modelraw)</div>
+                </div>
+
                 <div class="mt-4">
                     <h6 class="fw-semibold text-secondary">🔐 Güvenlik Özellikleri</h6>
-                    <p class="text-muted small">@Model.Security</p>
+                    <p class="text-muted small">@NumOrDash(Model.Security)</p>
 
                     <h6 class="fw-semibold text-secondary">🛋️ İç Donanım</h6>
-                    <p class="text-muted small">@Model.InternalEquipment</p>
+                    <p class="text-muted small">@NumOrDash(Model.InternalEquipment)</p>
 
                     <h6 class="fw-semibold text-secondary">🚗 Dış Donanım</h6>
-                    <p class="text-muted small">@Model.ExternalEquipment</p>
+                    <p class="text-muted small">@NumOrDash(Model.ExternalEquipment)</p>
                 </div>
 
-                
+               
+                @if (hasDesc)
+                {
+                    <hr class="my-4" />
+
+                    <h6 class="fw-semibold text-secondary mb-2">📝 Açıklama</h6>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.aciklama_kisa))
+                    {
+                        <div class="alert alert-secondary py-2 px-3 mb-3">
+                            <strong>@Model.aciklama_kisa</strong>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.aciklama))
+                    {
+                        <div class="bg-white rounded-3 shadow-sm p-3">
+                            <div class="text-muted small" style="white-space: pre-line;">
+                                @Model.aciklama
+                            </div>
+                        </div>
+                    }
+                }
+
                 <div class="mt-4 d-flex flex-wrap gap-2">
                     <a asp-controller="Car" asp-action="List" class="btn btn-outline-secondary btn-sm px-3 shadow-sm">← Geri Dön</a>
+
                     @if (User.IsInRole("Admin"))
                     {
                         <a asp-controller="Car" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm px-3 shadow-sm">Güncelle</a>
                         <a asp-controller="Car" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger btn-sm px-3 shadow-sm">Sil</a>
-
-                       
                     }
                     else
                     {
+                        <a asp-controller="Rental" asp-action="RentCar" asp-route-id="@Model.Id" class="btn btn-warning btn-sm px-3 shadow-sm">Kirala 🚗</a>
+                    }
 
-                        
-                         <a asp-controller="Rental" asp-action="RentCar" asp-route-id="@Model.Id" class="btn btn-warning btn-sm px-3 shadow-sm">Kirala 🚗</a>
+                    @if (hasPredict)
+                    {
+                        <button type="button" class="btn btn-success btn-sm px-3 shadow-sm"
+                                data-bs-toggle="modal" data-bs-target="#pricePredictModal">
+                            Fiyat Tahmini
+                        </button>
                     }
                 </div>
+
             </div>
         </div>
     </div>
 </div>
+
+@if (hasPredict)
+{
+    <div class="modal fade" id="pricePredictModal" tabindex="-1" aria-labelledby="pricePredictModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="pricePredictModalLabel">Fiyat Tahmini</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="p-3 bg-light rounded-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Tahmini Değer</span>
+                            <span class="fw-bold">@MoneyOrDash(Model.fiyat_tahmin)</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Alt Limit</span>
+                            <span class="fw-semibold">@MoneyOrDash(Model.fiyat_min)</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Üst Limit</span>
+                            <span class="fw-semibold">@MoneyOrDash(Model.fiyat_max)</span>
+                        </div>
+                    </div>
+
+                    <div class="text-muted small mt-3">
+                        Bu değerler model tahminidir; piyasa koşullarına göre değişebilir.
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

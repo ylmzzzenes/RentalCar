@@ -62,7 +62,7 @@
                                             <div class="carousel-item @(i == 0 ? "active" : "")">
                                                 <img src="~/Images/Upload/@images[i]"
                                                      class="d-block w-100 img-fluid rounded-top"
-                                                     alt="@car.Brand @car.Model"
+                                                     alt="@car.Brand @car.model"
                                                      style="height: 160px; object-fit: cover;" />
                                             </div>
                                         }
@@ -79,10 +79,10 @@
                             </div>
 
                             <div class="card-body py-3 px-3">
-                                <h6 class="card-title fw-semibold mb-2 text-dark small">@car.Brand @car.Model</h6>
+                                <h6 class="card-title fw-semibold mb-2 text-dark small">@car.Brand @car.model</h6>
                                 <p class="card-text text-muted small mb-2">
-                                    Renk: @car.Colour<br />
-                                    Yıl: @car.Year
+                                    Renk: @car.renk<br />
+                                    Yıl: @car.yil
                                 </p>
                                 <div class="d-grid gap-2">
                                     @if (User.IsInRole("Admin"))
