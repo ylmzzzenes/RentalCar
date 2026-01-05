@@ -10,7 +10,8 @@ namespace RentalCar.Data.Enums
     public enum Gear
     {
         None=0,
-        Automatic=1,
-        Manual=2
+        Otomatik=1,
+        Manuel=2,
+        YarıOtomatik = 4
     }
 }

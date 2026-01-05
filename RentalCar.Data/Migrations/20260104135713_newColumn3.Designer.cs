@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RentalCar.Data.Dbcontexts;
 
@@ -11,9 +12,11 @@ using RentalCar.Data.Dbcontexts;
 namespace RentalCar.Data.Migrations
 {
     [DbContext(typeof(RentalCarContext))]
-    partial class RentalCarContextModelSnapshot : ModelSnapshot
+    [Migration("20260104135713_newColumn3")]
+    partial class newColumn3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,12 +272,6 @@ namespace RentalCar.Data.Migrations
 
                     b.Property<decimal>("WeeklyPrice")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("aciklama")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("aciklama_kisa")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("cekis")
                         .HasColumnType("int");

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RentalCar.Data.Enums;
+using DriveType = RentalCar.Data.Enums.DriveType;
 
 namespace RentalCar.ViewComponents
 {
@@ -14,7 +15,8 @@ namespace RentalCar.ViewComponents
                 ExternalEquipment = Enum.GetValues(typeof(ExternalEquipment)).Cast<ExternalEquipment>().Where(e => e != ExternalEquipment.None).ToList(),
                 FuelType = Enum.GetValues(typeof(FuelType)).Cast<FuelType>().Where(e => e != FuelType.None).ToList(),
                 Gear = Enum.GetValues(typeof(Gear)).Cast<Gear>().Where(e => e != Gear.None).ToList(),
-                BodyType = Enum.GetValues(typeof(BodyType)).Cast<BodyType>().Where(e => e != BodyType.None).ToList()
+                BodyType = Enum.GetValues(typeof(BodyType)).Cast<BodyType>().Where(e => e != BodyType.None).ToList(),
+                DriveType = Enum.GetValues(typeof(DriveType)).Cast<DriveType>().Where(e => e != DriveType.None).ToList()
             };
 
             return View(model);
