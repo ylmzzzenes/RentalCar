@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using RentalCar.Data.Dbcontexts;
 using RentalCar.Data.Models;
 using System;
@@ -18,7 +18,7 @@ namespace RentalCar.Data.Services
         {
             _rental = rental;
         }
-        public async Task<Car> GetCarByIdAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<Car?> GetCarByIdAsync(int id, CancellationToken cancellationToken = default)
 {
          return await _rental.Cars.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 }

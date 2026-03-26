@@ -1,4 +1,4 @@
-﻿using RentalCar.Data.Enums;
+using RentalCar.Data.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace RentalCar.Data.Models
@@ -8,7 +8,7 @@ namespace RentalCar.Data.Models
         public int Id { get; set; }
 
         public int CarId { get; set; }
-        public Car Car { get; set; }
+        public Car Car { get; set; } = null!;
 
         public RentalType RentalType { get; set; }
 
