@@ -1,14 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace RentalCar.ViewModels
 {
     public class LoginViewModel
     {
         [EmailAddress]
-        public string Email { get; set; } = null;
+        public string Email { get; set; } = string.Empty;
 
         [DataType(DataType.Password)]
-        public  string Password { get;set; } = null;
+        public string Password { get; set; } = string.Empty;
 
         public bool RememberMe { get; set; } 
     }

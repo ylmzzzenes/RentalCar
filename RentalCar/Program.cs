@@ -11,7 +11,7 @@ namespace RentalCar
 {
     public class Program
     {
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
            
@@ -36,7 +36,7 @@ namespace RentalCar
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
-                options.LoginPath = "/Account/Login";
+                options.LoginPath = "/Account/Index";
                 options.AccessDeniedPath = "/Account/AccesDenied";
                 options.SlidingExpiration = true;
                 options.ExpireTimeSpan = TimeSpan.FromDays(30);
@@ -44,14 +44,23 @@ namespace RentalCar
 
 
             builder.Services.AddScoped<IEmailSender, SmtpEmailSender>(i =>
-                new SmtpEmailSender(
-                builder.Configuration["EmailSender:Host"],
+            {
+                var host = builder.Configuration["EmailSender:Host"]
+                    ?? throw new InvalidOperationException("EmailSender:Host yapılandırılmamış.");
+                var userName = builder.Configuration["EmailSender:UserName"]
+                    ?? throw new InvalidOperationException("EmailSender:UserName yapılandırılmamış.");
+                var password = builder.Configuration["EmailSender:Password"]
+                    ?? throw new InvalidOperationException("EmailSender:Password yapılandırılmamış.");
+
+                return new SmtpEmailSender(
+                host,
                 builder.Configuration.GetValue<int>("EmailSender:Port"),
                 builder.Configuration.GetValue<bool>("EmailSender:EnableSSL"),
-                builder.Configuration["EmailSender:UserName"],
-                builder.Configuration["EmailSender:Password"]
+                userName,
+                password
 
-            ));
+            );
+            });
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddScoped<CarServices>();
