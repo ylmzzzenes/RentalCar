@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = "Hesap Onayi";
+}
+
+<div class="auth-card text-center">
+    <h1 class="auth-title">Hesap Onayi</h1>
+    <p class="auth-subtitle">E-posta dogrulama sonucu asagidadir.</p>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="glass-alert p-3 mb-4">@TempData["Message"]</div>
+    }
+
+    <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+        <a asp-controller="Account" asp-action="Login" class="btn btn-primary-gradient">Login</a>
+        <a asp-controller="Account" asp-action="Create" class="btn btn-outline-light">Register</a>
+    </div>
+</div>
