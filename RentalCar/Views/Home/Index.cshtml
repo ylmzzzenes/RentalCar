@@ -19,10 +19,10 @@
                 <input type="text" name="model" class="form-control form-control-sm" placeholder="Model" />
             </div>
             <div class="col-md-4">
-                <input type="text" name="colour" class="form-control form-control-sm" placeholder="Renk" />
+                <input type="text" name="renk" class="form-control form-control-sm" placeholder="Renk" />
             </div>
             <div class="col-md-4">
-                <select name="fuelType" class="form-select form-select-sm">
+                <select name="yakitTuru" class="form-select form-select-sm">
                     <option value="">Yakıt Türü</option>
                     @foreach (var fuel in Enum.GetValues(typeof(FuelType)))
                     {
@@ -31,7 +31,7 @@
                 </select>
             </div>
             <div class="col-md-4">
-                <select name="gear" class="form-select form-select-sm">
+                <select name="vites" class="form-select form-select-sm">
                     <option value="">Vites Türü</option>
                     @foreach (var g in Enum.GetValues(typeof(Gear)))
                     {
@@ -49,7 +49,7 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <input type="number" name="year" class="form-control form-control-sm" placeholder="Yıl" />
+                <input type="number" name="yil" class="form-control form-control-sm" placeholder="Yıl" />
             </div>
             <div class="col-md-6 d-grid">
                 <button class="btn btn-primary-gradient btn-sm fw-semibold">Filtrele</button>
@@ -67,13 +67,16 @@
             {
                 <div class="col">
                     <div class="card h-100 border-0 rounded-4 auth-hero">
-                        <img src="~/Images/Upload/@(car.ImageUrls?.Split(',').FirstOrDefault())"
+                        @{
+                            var cover = car.ImageUrls?.Split(',', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+                        }
+                        <img src="@(string.IsNullOrWhiteSpace(cover) ? "https://via.placeholder.com/640x360?text=Arac+Gorseli" : Url.Content($"~/Images/Upload/{cover}"))"
                              class="card-img-top rounded-top-4"
                              alt="@car.Brand @car.model"
                              style="height: 180px; object-fit: cover;" />
                         <div class="card-body text-center">
-                            <h6 class="card-title fw-bold text-light">@car.Brand @car.model</h6>
-                            <p class="card-text small text-secondary">Renk: @car.renk | Yıl: @car.yil</p>
+                            <h6 class="card-title fw-bold text-light">@(car.marka ?? car.Brand) @car.model</h6>
+                            <p class="card-text small text-secondary">Renk: @car.renk | Yıl: @(car.yil?.Year)</p>
                             <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-light btn-sm">Ilan Detay</a>
                         </div>
                     </div>
