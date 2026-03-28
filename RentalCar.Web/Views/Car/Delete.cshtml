@@ -1,0 +1,31 @@
+@using Microsoft.AspNetCore.Identity
+@using RentalCar.Data.Models
+@model RentalCar.Data.Models.Car
+
+
+@{
+    ViewData["Title"] = "Ilan Sil";
+}
+
+
+
+<div class="auth-card" style="max-width:700px;">
+    <h3 class="auth-title">Bu ilani silmek istediginizden emin misiniz?</h3>
+    <div class="small text-secondary mb-3">Bu islem geri alinamaz.</div>
+
+    <dl class="row mb-4">
+        <dt class="col-sm-3">Marka</dt>
+        <dd class="col-sm-9">@Model.Brand</dd>
+        <dt class="col-sm-3">Model</dt>
+        <dd class="col-sm-9">@Model.model</dd>
+        <dt class="col-sm-3">Plaka</dt>
+        <dd class="col-sm-9">@Model.Plate</dd>
+    </dl>
+
+    <form asp-action="DeleteConfirm" method="post" class="d-flex gap-2">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Sil</button>
+        <a asp-action="List" class="btn btn-outline-light">Iptal</a>
+    </form>
+</div>
+

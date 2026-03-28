@@ -1,0 +1,108 @@
+@model List<RentalCar.Data.Models.Car>
+@using RentalCar.Data.Enums
+
+@{
+    ViewBag.Title = "Ana Sayfa";
+}
+
+
+<div class="auth-hero mb-5 text-center">
+    <h1 class="auth-title display-6">Hayalinizdeki Araci Kolayca Bulun</h1>
+    <p class="auth-subtitle">Akilli filtreleme ve modern deneyimle aradiginiz araca saniyeler icinde ulasin.</p>
+
+    <div class="mx-auto" style="max-width: 700px;">
+        <form method="get" asp-controller="Car" asp-action="List" class="row g-2">
+            <div class="col-md-4">
+                <input type="text" name="brand" class="form-control form-control-sm" placeholder="Marka" />
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="model" class="form-control form-control-sm" placeholder="Model" />
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="renk" class="form-control form-control-sm" placeholder="Renk" />
+            </div>
+            <div class="col-md-4">
+                <select name="yakitTuru" class="form-select form-select-sm">
+                    <option value="">Yakıt Türü</option>
+                    @foreach (var fuel in Enum.GetValues(typeof(FuelType)))
+                    {
+                        <option value="@fuel">@fuel</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select name="vites" class="form-select form-select-sm">
+                    <option value="">Vites Türü</option>
+                    @foreach (var g in Enum.GetValues(typeof(Gear)))
+                    {
+                        <option value="@g">@g</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select name="bodyType" class="form-select form-select-sm">
+                    <option value="">Kasa Tipi</option>
+                    @foreach (var body in Enum.GetValues(typeof(BodyType)))
+                    {
+                        <option value="@body">@body</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
+                <input type="number" name="yil" class="form-control form-control-sm" placeholder="Yıl" />
+            </div>
+            <div class="col-md-6 d-grid">
+                <button class="btn btn-primary-gradient btn-sm fw-semibold">Filtrele</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="container my-5">
+        <h2 class="text-center fw-bold mb-4">Vitrindeki Araclar</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var car in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 border-0 rounded-4 auth-hero">
+                        @{
+                            var cover = car.ImageUrls?.Split(',', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+                        }
+                        <img src="@(string.IsNullOrWhiteSpace(cover) ? "https://via.placeholder.com/640x360?text=Arac+Gorseli" : Url.Content($"~/Images/Upload/{cover}"))"
+                             class="card-img-top rounded-top-4"
+                             alt="@car.Brand @car.model"
+                             style="height: 180px; object-fit: cover;" />
+                        <div class="card-body text-center">
+                            <h6 class="card-title fw-bold text-light">@(car.marka ?? car.Brand) @car.model</h6>
+                            <p class="card-text small text-secondary">Renk: @car.renk | Yıl: @(car.yil?.Year)</p>
+                            <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-light btn-sm">Ilan Detay</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="glass-alert text-center my-4 p-3">Henuz vitrinde gosterilecek arac bulunamadi.</div>
+}
+
+
+<div class="row align-items-center auth-hero p-4 mt-5 rounded-4">
+    <div class="col-md-6 text-center mb-3 mb-md-0">
+        <img src="/images/Home.jpeg" alt="Araba" class="img-fluid rounded-4 shadow-sm" style="max-height: 280px;" />
+    </div>
+    <div class="col-md-6">
+        <h3 class="fw-bold mb-3">Hakkimizda</h3>
+        <p class="text-secondary">
+            <strong>RentalCar</strong>, Turkiye genelindeki arac sahipleri ve alicilari guvenli, hizli ve seffaf bir ortamda bulusturan modern bir arac platformudur.
+        </p>
+        <p class="text-secondary">
+            Kolay ilan verme, akilli filtreleme ve hizli iletisim ozellikleri ile sureci dijitallestiriyoruz.
+        </p>
+        <a asp-controller="Home" asp-action="About" class="btn btn-outline-light btn-sm">Hakkimizda Detay</a>
+    </div>
+</div>
