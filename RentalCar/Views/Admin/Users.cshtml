@@ -1,0 +1,85 @@
+@model List<RentalCar.ViewModels.Admin.AdminUserItemViewModel>
+@{
+    ViewData["Title"] = "Kullanici Yonetimi";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Kullanici Yonetimi</h2>
+    <a asp-action="Dashboard" class="btn btn-outline-light btn-sm">Panele Don</a>
+</div>
+
+@if (TempData["AdminError"] is string error && !string.IsNullOrWhiteSpace(error))
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<div class="table-responsive">
+    <table class="table table-dark table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Kullanici</th>
+                <th>E-posta</th>
+                <th>Rol</th>
+                <th>Durum</th>
+                <th class="text-end">Islemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="fw-semibold">@user.FullName</div>
+                        <small class="text-secondary">@user.UserName</small>
+                    </td>
+                    <td>@user.Email</td>
+                    <td>
+                        <form asp-action="SetRole" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            <select name="role" class="form-select form-select-sm">
+                                @if (user.Role == "Admin")
+                                {
+                                    <option value="Admin" selected>Admin</option>
+                                    <option value="User">User</option>
+                                }
+                                else
+                                {
+                                    <option value="Admin">Admin</option>
+                                    <option value="User" selected>User</option>
+                                }
+                            </select>
+                            <button class="btn btn-sm btn-outline-light" type="submit">Kaydet</button>
+                        </form>
+                    </td>
+                    <td>
+                        @if (user.IsLocked)
+                        {
+                            <span class="badge text-bg-danger">Kilitli</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-success">Aktif</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <div class="d-inline-flex gap-2">
+                            <form asp-action="ToggleLock" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <button class="btn btn-sm @(user.IsLocked ? "btn-success" : "btn-warning")" type="submit">
+                                    @(user.IsLocked ? "Kilidi Ac" : "Kilitle")
+                                </button>
+                            </form>
+                            <form asp-action="DeleteUser" method="post" onsubmit="return confirm('Kullaniciyi silmek istediginize emin misiniz?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <button class="btn btn-sm btn-danger" type="submit">Sil</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

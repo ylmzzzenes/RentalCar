@@ -1,4 +1,4 @@
-﻿@using RentalCar.Data.Enums
+@using RentalCar.Data.Enums
 @model RentalCar.Data.Models.Requests.CreateCar
 
 @{
@@ -136,6 +136,8 @@
         <label asp-for="servisGecmisi" class="form-label fw-semibold">Servis Geçmişi</label>
         <input asp-for="servisGecmisi" class="form-control form-control-sm shadow-sm" placeholder="1" />
     </div>
+
+    @await Component.InvokeAsync("EnumSelector")
 
     <div class="col-md-12 mb-3">
         <label asp-for="ImageUrls" class="form-label fw-semibold">Araç Fotoğrafları</label>

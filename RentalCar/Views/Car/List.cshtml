@@ -1,18 +1,18 @@
-﻿@using RentalCar.Data.Enums
+@using RentalCar.Data.Enums
 @model List<RentalCar.Data.Models.Car>
 
 <div class="row">
   
     <div class="col-md-3 mb-4">
-        <div class="bg-light border rounded-4 shadow-sm p-4">
+        <div class="listing-filter-panel shadow-sm p-4">
             <h5 class="fw-bold mb-4 text-secondary text-center">🔍 Araç Filtrele</h5>
 
             <form method="get" asp-controller="Car" asp-action="List" class="needs-validation" novalidate>
                 <input type="text" name="brand" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Marka" />
                 <input type="text" name="model" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Model" />
-                <input type="text" name="colour" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Renk" />
+                <input type="text" name="renk" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Renk" />
 
-                <select name="fuelType" class="form-select form-select-sm mb-3 shadow-sm">
+                <select name="yakitTuru" class="form-select form-select-sm mb-3 shadow-sm">
                     <option value="">Yakıt Türü</option>
                     @foreach (var fuel in Enum.GetValues(typeof(FuelType)))
                     {
@@ -20,7 +20,7 @@
                     }
                 </select>
 
-                <select name="gear" class="form-select form-select-sm mb-3 shadow-sm">
+                <select name="vites" class="form-select form-select-sm mb-3 shadow-sm">
                     <option value="">Vites Türü</option>
                     @foreach (var g in Enum.GetValues(typeof(Gear)))
                     {
@@ -36,7 +36,7 @@
                     }
                 </select>
 
-                <input type="number" name="year" class="form-control form-control-sm mb-4 shadow-sm" placeholder="Yıl" />
+                <input type="number" name="yil" class="form-control form-control-sm mb-4 shadow-sm" placeholder="Yıl" />
 
                 <button class="btn btn-warning w-100 fw-semibold shadow-sm btn-sm">Filtrele</button>
             </form>
@@ -52,15 +52,19 @@
                 @foreach (var car in Model)
                 {
                     <div class="col">
-                        <div class="card h-100 shadow-sm border-0 rounded-4">
+                        <div class="card listing-card h-100 shadow-sm border-0 rounded-4">
                             <div id="carCarousel-@car.Id" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner">
                                     @{
-                                        var images = car.ImageUrls?.Split(',') ?? Array.Empty<string>();
+                                        var images = car.ImageUrls?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                                        if (images.Length == 0)
+                                        {
+                                            images = ["https://via.placeholder.com/640x360?text=Arac+Gorseli"];
+                                        }
                                         for (int i = 0; i < images.Length; i++)
                                         {
                                             <div class="carousel-item @(i == 0 ? "active" : "")">
-                                                <img src="~/Images/Upload/@images[i]"
+                                                <img src="@(images[i].StartsWith("http", StringComparison.OrdinalIgnoreCase) ? images[i] : Url.Content($"~/Images/Upload/{images[i]}"))"
                                                      class="d-block w-100 img-fluid rounded-top"
                                                      alt="@car.Brand @car.model"
                                                      style="height: 160px; object-fit: cover;" />
@@ -79,11 +83,14 @@
                             </div>
 
                             <div class="card-body py-3 px-3">
-                                <h6 class="card-title fw-semibold mb-2 text-dark small">@car.Brand @car.model</h6>
+                                <h6 class="card-title fw-semibold mb-2 text-dark small">@(car.marka ?? car.Brand) @car.model</h6>
                                 <p class="card-text text-muted small mb-2">
                                     Renk: @car.renk<br />
-                                    Yıl: @car.yil
+                                    Yıl: @(car.yil?.Year)
                                 </p>
+                                <div class="listing-price mb-2">
+                                    @(car.fiyat.HasValue ? $"{car.fiyat.Value:N0} TL" : "Fiyat bilgisi yok")
+                                </div>
                                 <div class="d-grid gap-2">
                                     @if (User.IsInRole("Admin"))
                                     {

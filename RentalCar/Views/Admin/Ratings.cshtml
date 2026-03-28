@@ -1,0 +1,47 @@
+@model List<RentalCar.ViewModels.Admin.AdminRatingItemViewModel>
+@{
+    ViewData["Title"] = "Puan Moderasyonu";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Puan Moderasyonu</h2>
+    <a asp-action="Dashboard" class="btn btn-outline-light btn-sm">Panele Don</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-dark table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Ilan</th>
+                <th>Kullanici</th>
+                <th>Puan</th>
+                <th>Tarih</th>
+                <th class="text-end">Islem</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <a asp-controller="Car" asp-action="Details" asp-route-id="@item.CarId" class="link-light text-decoration-none">
+                            @item.CarTitle
+                        </a>
+                    </td>
+                    <td>@item.UserName</td>
+                    <td>
+                        <span class="badge text-bg-info">@item.Score / 5</span>
+                    </td>
+                    <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td class="text-end">
+                        <form asp-action="DeleteRating" method="post" onsubmit="return confirm('Puani silmek istediginize emin misiniz?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <button class="btn btn-sm btn-danger" type="submit">Sil</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

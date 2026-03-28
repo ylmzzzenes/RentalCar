@@ -1,0 +1,44 @@
+@model List<RentalCar.Data.Models.CarRating>
+@{
+    ViewData["Title"] = "Puanlamalarim";
+    var cars = ViewBag.Cars as Dictionary<int, RentalCar.Data.Models.Car> ?? new();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0">Yaptigim Puanlamalar</h3>
+    <a asp-controller="Car" asp-action="List" class="btn btn-outline-secondary btn-sm">Ilanlara Don</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="glass-alert p-3">Henüz puanlama yapmadiniz.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover bg-white rounded-3">
+            <thead>
+                <tr>
+                    <th>Arac</th>
+                    <th>Puan</th>
+                    <th>Tarih</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rating in Model)
+                {
+                    cars.TryGetValue(rating.CarId, out var car);
+                    <tr>
+                        <td>@(car is null ? "-" : $"{car.marka ?? car.Brand} {car.model}")</td>
+                        <td><span class="badge bg-warning text-dark">@rating.Score / 5</span></td>
+                        <td>@rating.ModifiedOn.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>
+                            <a asp-controller="Car" asp-action="Details" asp-route-id="@rating.CarId" class="btn btn-outline-primary btn-sm">Ilan Detayi</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

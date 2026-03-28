@@ -1,4 +1,4 @@
-﻿@model dynamic
+@model dynamic
 
 <style>
     .option-pill {
@@ -74,6 +74,19 @@
         {
             <label class="option-pill">
                 <input type="checkbox" name="SelectedBodyType" value="@((int)item)" />
+                @item
+            </label>
+        }
+    </div>
+</div>
+
+<div class="option-group">
+    <h6>Cekis Tipi</h6>
+    <div class="pill-container">
+        @foreach (var item in Model.DriveType)
+        {
+            <label class="option-pill">
+                <input type="checkbox" name="SelectedDriveType" value="@((int)item)" />
                 @item
             </label>
         }
