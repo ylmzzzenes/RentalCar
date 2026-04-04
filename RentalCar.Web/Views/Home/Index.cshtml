@@ -1,5 +1,5 @@
-@model List<RentalCar.Data.Models.Car>
-@using RentalCar.Data.Enums
+@model List<RentalCar.Domain.Entities.Car>
+@using RentalCar.Domain.Enums
 
 @{
     ViewBag.Title = "Ana Sayfa";
@@ -68,15 +68,15 @@
                 <div class="col">
                     <div class="card h-100 border-0 rounded-4 auth-hero">
                         @{
-                            var cover = car.ImageUrls?.Split(',', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+                            var cover = car.ImageUrls.FirstOrDefault();
                         }
                         <img src="@(string.IsNullOrWhiteSpace(cover) ? "https://via.placeholder.com/640x360?text=Arac+Gorseli" : Url.Content($"~/Images/Upload/{cover}"))"
                              class="card-img-top rounded-top-4"
-                             alt="@car.Brand @car.model"
+                             alt="@car.Brand @car.Model"
                              style="height: 180px; object-fit: cover;" />
                         <div class="card-body text-center">
-                            <h6 class="card-title fw-bold text-light">@(car.marka ?? car.Brand) @car.model</h6>
-                            <p class="card-text small text-secondary">Renk: @car.renk | Yıl: @(car.yil?.Year)</p>
+                            <h6 class="card-title fw-bold text-light">@(car.CatalogBrand ?? car.Brand) @car.Model</h6>
+                            <p class="card-text small text-secondary">Renk: @car.Color | Yıl: @(car.ModelYear)</p>
                             <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-light btn-sm">Ilan Detay</a>
                         </div>
                     </div>

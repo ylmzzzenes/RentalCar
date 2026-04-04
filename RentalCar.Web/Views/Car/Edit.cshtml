@@ -1,6 +1,4 @@
-@using RentalCar.Data.Enums 
-@model RentalCar.Data.Models.Car
-
+@model RentalCar.Domain.Entities.Car
 
 @{
     ViewData["Title"] = "Ilan Guncelle";
@@ -10,31 +8,34 @@
     <h3 class="auth-title mb-3">@ViewData["Title"]</h3>
     <form asp-action="Edit" method="post">
         <input type="hidden" asp-for="Id" />
-        <input type="hidden" asp-for="ImageUrls" />
+        @for (var i = 0; i < Model.ImageUrls.Count; i++)
+        {
+            <input type="hidden" asp-for="ImageUrls[i]" />
+        }
         <div class="row g-3">
             <div class="col-md-6">
                 <label asp-for="Brand" class="form-label">Marka</label>
                 <input asp-for="Brand" class="form-control" />
             </div>
             <div class="col-md-6">
-                <label asp-for="model" class="form-label">Model</label>
-                <input asp-for="model" class="form-control" />
+                <label asp-for="Model" class="form-label">Model</label>
+                <input asp-for="Model" class="form-control" />
             </div>
             <div class="col-md-6">
-                <label asp-for="yil" class="form-label">Yil</label>
-                <input asp-for="yil" type="date" class="form-control" />
+                <label asp-for="ModelYear" class="form-label">Yil</label>
+                <input asp-for="ModelYear" type="number" min="1950" max="2100" class="form-control" />
             </div>
             <div class="col-md-6">
-                <label asp-for="renk" class="form-label">Renk</label>
-                <input asp-for="renk" class="form-control" />
+                <label asp-for="Color" class="form-label">Renk</label>
+                <input asp-for="Color" class="form-control" />
             </div>
             <div class="col-md-6">
                 <label asp-for="Plate" class="form-label">Plaka</label>
                 <input asp-for="Plate" class="form-control" />
             </div>
             <div class="col-md-6">
-                <label asp-for="fiyat" class="form-label">Fiyat</label>
-                <input asp-for="fiyat" class="form-control" />
+                <label asp-for="ListedPrice" class="form-label">Fiyat</label>
+                <input asp-for="ListedPrice" class="form-control" />
             </div>
         </div>
         <div class="d-flex gap-2 mt-4">

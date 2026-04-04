@@ -1,14 +1,13 @@
-using RentalCar.Data.Models;
+using RentalCar.Domain.Entities;
 
-namespace RentalCar.ViewModels
+namespace RentalCar.ViewModels;
+
+public class CarDetailsViewModel
 {
-    public class CarDetailsViewModel
-    {
-        public Car Car { get; set; } = null!;
-        public bool IsFavorite { get; set; }
-        public double AverageRating { get; set; }
-        public int RatingCount { get; set; }
-        public int? CurrentUserRating { get; set; }
-        public List<CarComment> Comments { get; set; } = new();
-    }
+    public Car Car { get; set; } = null!;
+    public bool IsFavorite { get; set; }
+    public double AverageRating { get; set; }
+    public int RatingCount { get; set; }
+    public int? CurrentUserRating { get; set; }
+    public List<CarComment> Comments { get; set; } = new();
 }

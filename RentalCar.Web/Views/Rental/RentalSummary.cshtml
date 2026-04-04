@@ -1,4 +1,4 @@
-@model RentalCar.Data.Models.Rental
+@model RentalCar.Domain.Entities.Rental
 @{
     ViewData["Title"] = "Kiralama Ozeti";
 }
@@ -7,19 +7,18 @@
     <h3 class="mb-3">Kiralama Ozeti</h3>
     <div class="row g-3">
         <div class="col-md-6">
-            <p><strong>Arac:</strong> @(Model.Car?.marka ?? Model.Car?.Brand) @Model.Car?.model</p>
+            <p><strong>Arac:</strong> @(Model.Car?.CatalogBrand ?? Model.Car?.Brand) @Model.Car?.Model</p>
             <p><strong>Kiralama Turu:</strong> @Model.RentalType</p>
             <p><strong>Sure:</strong> @Model.Duration</p>
             <p><strong>Toplam Tutar:</strong> <span class="text-success fw-bold">@Model.TotalPrice.ToString("N2") TL</span></p>
         </div>
         <div class="col-md-6">
-            @if (!string.IsNullOrWhiteSpace(Model.Car?.ImageUrls))
+            @{
+                var cover = Model.Car?.ImageUrls.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
+            }
+            @if (!string.IsNullOrWhiteSpace(cover))
             {
-                var cover = Model.Car.ImageUrls.Split(',', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
-                if (!string.IsNullOrWhiteSpace(cover))
-                {
-                    <img src="~/Images/Upload/@cover" class="img-fluid rounded-3" style="max-height:220px; object-fit:cover;" />
-                }
+                <img src="~/Images/Upload/@cover" class="img-fluid rounded-3" style="max-height:220px; object-fit:cover;" />
             }
         </div>
     </div>

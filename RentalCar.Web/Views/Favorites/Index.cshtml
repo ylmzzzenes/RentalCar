@@ -1,4 +1,4 @@
-@model List<RentalCar.Data.Models.Car>
+@model List<RentalCar.Domain.Entities.Car>
 @{
     ViewData["Title"] = "Favorilerim";
 }
@@ -17,16 +17,16 @@ else
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
         @foreach (var car in Model)
         {
-            var image = car.ImageUrls?.Split(',', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+            var image = car.ImageUrls.FirstOrDefault();
             <div class="col">
                 <div class="card listing-card h-100 border-0 shadow-sm rounded-4">
                     <img src="@(string.IsNullOrWhiteSpace(image) ? "https://via.placeholder.com/640x360?text=Arac+Gorseli" : Url.Content($"~/Images/Upload/{image}"))"
                          class="card-img-top"
                          style="height:190px; object-fit:cover;" />
                     <div class="card-body">
-                        <h6 class="fw-semibold">@(car.marka ?? car.Brand) @car.model</h6>
-                        <div class="small text-muted">@(car.yil?.Year) - @car.renk</div>
-                        <div class="listing-price mt-2">@(car.fiyat.HasValue ? $"{car.fiyat.Value:N0} TL" : "Fiyat yok")</div>
+                        <h6 class="fw-semibold">@(car.CatalogBrand ?? car.Brand) @car.Model</h6>
+                        <div class="small text-muted">@(car.ModelYear) - @car.Color</div>
+                        <div class="listing-price mt-2">@(car.ListedPrice.HasValue ? $"{car.ListedPrice.Value:N0} TL" : "Fiyat yok")</div>
                     </div>
                     <div class="card-footer bg-white border-0">
                         <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-primary btn-sm w-100">Detay</a>
