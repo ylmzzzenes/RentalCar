@@ -9,7 +9,7 @@ using RentalCar.Infrastructure.Persistence.Context;
 
 #nullable disable
 
-namespace RentalCar.Data.Migrations
+namespace RentalCar.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(RentalCarContext))]
     [Migration("20250818145041_NewInitialCreate")]
@@ -25,7 +25,7 @@ namespace RentalCar.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("RentalCar.Data.Models.Car", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.Car", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -102,7 +102,7 @@ namespace RentalCar.Data.Migrations
                     b.ToTable("Cars");
                 });
 
-            modelBuilder.Entity("RentalCar.Data.Models.Rental", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.Rental", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -132,9 +132,9 @@ namespace RentalCar.Data.Migrations
                     b.ToTable("Rentals");
                 });
 
-            modelBuilder.Entity("RentalCar.Data.Models.Rental", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.Rental", b =>
                 {
-                    b.HasOne("RentalCar.Data.Models.Car", "Car")
+                    b.HasOne("RentalCar.Domain.Entities.Car", "Car")
                         .WithMany()
                         .HasForeignKey("CarId")
                         .OnDelete(DeleteBehavior.Cascade)

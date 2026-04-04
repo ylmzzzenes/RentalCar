@@ -1,7 +1,7 @@
 using System.Text.Json;
 using RentalCar.Application.Abstractions.AI;
 using RentalCar.Application.AI.Models;
-using RentalCar.Data.Enums;
+using RentalCar.Domain.Enums;
 
 namespace RentalCar.AI.Services
 {
