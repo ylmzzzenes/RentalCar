@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace RentalCar.Data.Models
+namespace RentalCar.Domain.Entities;
+
+public class AppUser : IdentityUser
 {
-    public class AppUser:IdentityUser
-    {
-        public string? FullName { get;set; }
-        public string? ProfileImageUrl { get; set; }
-        public string? Bio { get; set; }
-    }
+    public string? FullName { get; set; }
+    public string? ProfileImageUrl { get; set; }
+    public string? Bio { get; set; }
 }

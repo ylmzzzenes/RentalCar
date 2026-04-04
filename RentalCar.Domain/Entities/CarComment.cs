@@ -1,13 +1,14 @@
-namespace RentalCar.Data.Models
-{
-    public class CarComment : BaseEntity
-    {
-        public int Id { get; set; }
-        public int CarId { get; set; }
-        public string UserId { get; set; } = string.Empty;
-        public string Content { get; set; } = string.Empty;
+using RentalCar.Domain.Common;
 
-        public Car Car { get; set; } = null!;
-        public AppUser User { get; set; } = null!;
-    }
+namespace RentalCar.Domain.Entities;
+
+public class CarComment : BaseEntity
+{
+    public int Id { get; set; }
+    public int CarId { get; set; }
+    public string UserId { get; set; } = string.Empty;
+    public string Content { get; set; } = string.Empty;
+
+    public Car Car { get; set; } = null!;
+    public AppUser User { get; set; } = null!;
 }

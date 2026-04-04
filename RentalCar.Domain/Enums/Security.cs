@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RentalCar.Data.Enums
+namespace RentalCar.Domain.Enums
 {
     [Flags]
     public enum Security
