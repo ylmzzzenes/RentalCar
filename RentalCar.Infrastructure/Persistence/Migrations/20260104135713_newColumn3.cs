@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace RentalCar.Data.Migrations
+namespace RentalCar.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class newColumn3 : Migration

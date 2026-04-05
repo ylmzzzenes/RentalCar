@@ -9,7 +9,7 @@ using RentalCar.Infrastructure.Persistence.Context;
 
 #nullable disable
 
-namespace RentalCar.Data.Migrations
+namespace RentalCar.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(RentalCarContext))]
     [Migration("20260327013743_AddSocialFeaturesAndProfile")]
@@ -131,7 +131,7 @@ namespace RentalCar.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("RentalCar.Data.Models.AppRole", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.AppRole", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -158,7 +158,7 @@ namespace RentalCar.Data.Migrations
                     b.ToTable("AspNetRoles", (string)null);
                 });
 
-            modelBuilder.Entity("RentalCar.Data.Models.AppUser", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.AppUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -232,7 +232,7 @@ namespace RentalCar.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("RentalCar.Data.Models.Car", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.Car", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -384,7 +384,7 @@ namespace RentalCar.Data.Migrations
                     b.ToTable("Cars");
                 });
 
-            modelBuilder.Entity("RentalCar.Data.Models.CarComment", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.CarComment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -419,7 +419,7 @@ namespace RentalCar.Data.Migrations
                     b.ToTable("CarComments");
                 });
 
-            modelBuilder.Entity("RentalCar.Data.Models.CarRating", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.CarRating", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -453,7 +453,7 @@ namespace RentalCar.Data.Migrations
                     b.ToTable("CarRatings");
                 });
 
-            modelBuilder.Entity("RentalCar.Data.Models.Favorite", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.Favorite", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -484,7 +484,7 @@ namespace RentalCar.Data.Migrations
                     b.ToTable("Favorites");
                 });
 
-            modelBuilder.Entity("RentalCar.Data.Models.Rental", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.Rental", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -518,7 +518,7 @@ namespace RentalCar.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("RentalCar.Data.Models.AppRole", null)
+                    b.HasOne("RentalCar.Domain.Entities.AppRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -527,7 +527,7 @@ namespace RentalCar.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("RentalCar.Data.Models.AppUser", null)
+                    b.HasOne("RentalCar.Domain.Entities.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -536,7 +536,7 @@ namespace RentalCar.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("RentalCar.Data.Models.AppUser", null)
+                    b.HasOne("RentalCar.Domain.Entities.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -545,13 +545,13 @@ namespace RentalCar.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("RentalCar.Data.Models.AppRole", null)
+                    b.HasOne("RentalCar.Domain.Entities.AppRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RentalCar.Data.Models.AppUser", null)
+                    b.HasOne("RentalCar.Domain.Entities.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -560,22 +560,22 @@ namespace RentalCar.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("RentalCar.Data.Models.AppUser", null)
+                    b.HasOne("RentalCar.Domain.Entities.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RentalCar.Data.Models.CarComment", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.CarComment", b =>
                 {
-                    b.HasOne("RentalCar.Data.Models.Car", "Car")
+                    b.HasOne("RentalCar.Domain.Entities.Car", "Car")
                         .WithMany()
                         .HasForeignKey("CarId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RentalCar.Data.Models.AppUser", "User")
+                    b.HasOne("RentalCar.Domain.Entities.AppUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -586,15 +586,15 @@ namespace RentalCar.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("RentalCar.Data.Models.CarRating", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.CarRating", b =>
                 {
-                    b.HasOne("RentalCar.Data.Models.Car", "Car")
+                    b.HasOne("RentalCar.Domain.Entities.Car", "Car")
                         .WithMany()
                         .HasForeignKey("CarId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RentalCar.Data.Models.AppUser", "User")
+                    b.HasOne("RentalCar.Domain.Entities.AppUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -605,15 +605,15 @@ namespace RentalCar.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("RentalCar.Data.Models.Favorite", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.Favorite", b =>
                 {
-                    b.HasOne("RentalCar.Data.Models.Car", "Car")
+                    b.HasOne("RentalCar.Domain.Entities.Car", "Car")
                         .WithMany()
                         .HasForeignKey("CarId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RentalCar.Data.Models.AppUser", "User")
+                    b.HasOne("RentalCar.Domain.Entities.AppUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -624,9 +624,9 @@ namespace RentalCar.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("RentalCar.Data.Models.Rental", b =>
+            modelBuilder.Entity("RentalCar.Domain.Entities.Rental", b =>
                 {
-                    b.HasOne("RentalCar.Data.Models.Car", "Car")
+                    b.HasOne("RentalCar.Domain.Entities.Car", "Car")
                         .WithMany()
                         .HasForeignKey("CarId")
                         .OnDelete(DeleteBehavior.Cascade)
