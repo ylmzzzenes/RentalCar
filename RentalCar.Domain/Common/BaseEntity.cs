@@ -1,21 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace RentalCar.Domain.Common;
 
-namespace RentalCar.Data.Models
+public abstract class BaseEntity : IAuditableEntity
 {
-    public abstract class BaseEntity:IEntityModel
-    {
-        public DateTime CreatedOn { get; set; }
-        public DateTime ModifiedOn { get; set; }
-    }
+    public DateTime CreatedOn { get; set; }
+    public DateTime ModifiedOn { get; set; }
+}
 
-    public interface IEntityModel
-    {
-        public DateTime CreatedOn { get; set; }
-        public DateTime ModifiedOn { get; set; }
-
-    }
+public interface IAuditableEntity
+{
+    DateTime CreatedOn { get; set; }
+    DateTime ModifiedOn { get; set; }
 }
