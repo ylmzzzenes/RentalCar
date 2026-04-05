@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using RentalCar.Data.Models;
+using RentalCar.Domain.Entities;
 using RentalCar.Infrastructure.Persistence.Context;
 
 namespace RentalCar.Infrastructure.Services;
