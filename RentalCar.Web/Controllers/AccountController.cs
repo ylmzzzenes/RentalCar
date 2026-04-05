@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RentalCar.Application.Abstractions.Services;
-using RentalCar.Data.Models;
+using RentalCar.Domain.Entities;
 using RentalCar.ViewModels;
 using System.Net.Mail;
 

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using RentalCar.Data.Models;
+using RentalCar.Domain.Entities;
 using RentalCar.ViewModels;
 using System.Security.Claims;
 

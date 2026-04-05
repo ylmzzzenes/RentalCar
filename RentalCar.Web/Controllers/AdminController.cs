@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RentalCar.Domain.Entities;
 using RentalCar.Infrastructure.Persistence.Context;
-using RentalCar.Data.Models;
 using RentalCar.ViewModels.Admin;
 
 namespace RentalCar.Controllers
@@ -137,10 +137,10 @@ namespace RentalCar.Controllers
                 .Select(c => new AdminCarItemViewModel
                 {
                     Id = c.Id,
-                    Title = (c.marka ?? c.Brand ?? "Arac") + " " + (c.model_adi ?? c.model ?? string.Empty),
-                    Price = c.fiyat ?? c.DailyPrice,
-                    Year = c.yil.HasValue ? c.yil.Value.Year : null,
-                    City = c.sehir,
+                    Title = (c.CatalogBrand ?? c.Brand ?? "Arac") + " " + (c.CatalogModelName ?? c.Model ?? string.Empty),
+                    Price = c.ListedPrice ?? c.DailyPrice,
+                    Year = c.ModelYear,
+                    City = c.City,
                     IsApproved = c.IsApproved
                 })
                 .ToListAsync();
@@ -184,7 +184,7 @@ namespace RentalCar.Controllers
                 {
                     Id = c.Id,
                     CarId = c.CarId,
-                    CarTitle = (c.Car.marka ?? c.Car.Brand ?? "Arac") + " " + (c.Car.model_adi ?? c.Car.model ?? string.Empty),
+                    CarTitle = (c.Car.CatalogBrand ?? c.Car.Brand ?? "Arac") + " " + (c.Car.CatalogModelName ?? c.Car.Model ?? string.Empty),
                     UserName = c.User.UserName ?? "Kullanici",
                     Content = c.Content,
                     CreatedAt = c.CreatedOn
@@ -217,7 +217,7 @@ namespace RentalCar.Controllers
                 {
                     Id = r.Id,
                     CarId = r.CarId,
-                    CarTitle = (r.Car.marka ?? r.Car.Brand ?? "Arac") + " " + (r.Car.model_adi ?? r.Car.model ?? string.Empty),
+                    CarTitle = (r.Car.CatalogBrand ?? r.Car.Brand ?? "Arac") + " " + (r.Car.CatalogModelName ?? r.Car.Model ?? string.Empty),
                     UserName = r.User.UserName ?? "Kullanici",
                     Score = r.Score,
                     CreatedAt = r.CreatedOn
@@ -250,7 +250,7 @@ namespace RentalCar.Controllers
                 {
                     Id = f.Id,
                     CarId = f.CarId,
-                    CarTitle = (f.Car.marka ?? f.Car.Brand ?? "Arac") + " " + (f.Car.model_adi ?? f.Car.model ?? string.Empty),
+                    CarTitle = (f.Car.CatalogBrand ?? f.Car.Brand ?? "Arac") + " " + (f.Car.CatalogModelName ?? f.Car.Model ?? string.Empty),
                     UserName = f.User.UserName ?? "Kullanici",
                     CreatedAt = f.CreatedOn
                 })
