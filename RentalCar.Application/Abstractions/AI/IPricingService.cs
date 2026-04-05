@@ -1,4 +1,4 @@
-using RentalCar.Data.Enums;
+using RentalCar.Domain.Enums;
 
 namespace RentalCar.Application.Abstractions.AI
 {
