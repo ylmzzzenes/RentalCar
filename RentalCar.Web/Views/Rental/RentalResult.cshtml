@@ -1,5 +1,5 @@
-﻿@model RentalCar.Data.Models.Rental
-@using RentalCar.Data.Enums
+﻿@model RentalCar.Domain.Entities.Rental
+@using RentalCar.Domain.Enums
 
 @{
     ViewData["Title"] = "Kiralama Sonucu";
@@ -10,13 +10,13 @@
 
     <div class="row g-4">
         <div class="col-md-6">
-            <h4>@Model.Car.Brand @Model.Car.model</h4>
+            <h4>@Model.Car.Brand @Model.Car.Model</h4>
             <p><strong>Plaka:</strong> @Model.Car.Plate</p>
-            <p><strong>Yıl:</strong> @Model.Car.yil</p>
-            <p><strong>Yakıt Türü:</strong> @Model.Car.yakitTuru</p>
-            <p><strong>Vites:</strong> @Model.Car.vites</p>
+            <p><strong>Yıl:</strong> @Model.Car.ModelYear</p>
+            <p><strong>Yakıt Türü:</strong> @Model.Car.FuelType</p>
+            <p><strong>Vites:</strong> @Model.Car.Transmission</p>
             <p><strong>Kasa Tipi:</strong> @Model.Car.BodyType</p>
-            <p><strong>Renk:</strong> @Model.Car.renk</p>
+            <p><strong>Renk:</strong> @Model.Car.Color</p>
 
             <p><strong>Kiralama Tipi:</strong> @Model.RentalType</p>
             <p><strong>Süre:</strong> @Model.Duration</p>
@@ -28,9 +28,9 @@
         </div>
 
         <div class="col-md-6 text-center">
-            @if (!string.IsNullOrWhiteSpace(Model.Car.ImageUrls))
+            @if (Model.Car.ImageUrls.Any(x => !string.IsNullOrWhiteSpace(x)))
             {
-                foreach (var img in Model.Car.ImageUrls.Split(','))
+                foreach (var img in Model.Car.ImageUrls.Where(x => !string.IsNullOrWhiteSpace(x)))
                 {
                     <img src="~/Images/Upload/@img"
                          class="img-thumbnail m-2"

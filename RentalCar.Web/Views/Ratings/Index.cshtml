@@ -1,7 +1,8 @@
-@model List<RentalCar.Data.Models.CarRating>
+@using RentalCar.Domain.Entities
+@model List<RentalCar.Domain.Entities.CarRating>
 @{
     ViewData["Title"] = "Puanlamalarim";
-    var cars = ViewBag.Cars as Dictionary<int, RentalCar.Data.Models.Car> ?? new();
+    var cars = ViewBag.Cars as Dictionary<int, Car> ?? new();
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -30,7 +31,7 @@ else
                 {
                     cars.TryGetValue(rating.CarId, out var car);
                     <tr>
-                        <td>@(car is null ? "-" : $"{car.marka ?? car.Brand} {car.model}")</td>
+                        <td>@(car is null ? "-" : $"{car.CatalogBrand ?? car.Brand} {car.Model}")</td>
                         <td><span class="badge bg-warning text-dark">@rating.Score / 5</span></td>
                         <td>@rating.ModifiedOn.ToString("dd.MM.yyyy HH:mm")</td>
                         <td>
