@@ -1,45 +1,31 @@
-using RentalCar.Data.Enums;
-using System.ComponentModel.DataAnnotations;
+using RentalCar.Domain.Enums;
 
-namespace RentalCar.Data.Models
+namespace RentalCar.Domain.Entities;
+
+public class Rental
 {
-    public class Rental
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public int CarId { get; set; }
-        public Car Car { get; set; } = null!;
+    public int CarId { get; set; }
+    public Car Car { get; set; } = null!;
 
-        public RentalType RentalType { get; set; }
+    public RentalType RentalType { get; set; }
 
-      
-        public decimal Duration { get; set; }
+    public decimal Duration { get; set; }
 
-        public decimal TotalPrice { get; set; }
+    public decimal TotalPrice { get; set; }
 
-        public DateTime StartDate { get; set; }
+    public DateTime StartDate { get; set; }
 
+    public DateTime EndDate => StartDate.AddDays((double)CalculateTotalDays);
 
-        public DateTime EndDate => StartDate.AddDays((double)CalculateTotalDays);
-
-        private decimal  CalculateTotalDays
+    private decimal CalculateTotalDays =>
+        RentalType switch
         {
-            get
-            {
-                switch (RentalType)
-                {
-                    case RentalType.Daily:
-                        return Duration;
-                    case RentalType.Weekly:
-                        return Duration * 7;
-                    case RentalType.Monthly:
-                        return Duration * 30;
-                    case RentalType.LongTerm:
-                        return Duration * 365;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(RentalType), "Invalid rental type");
-                }
-            }
-        }
-    }
+            RentalType.Daily => Duration,
+            RentalType.Weekly => Duration * 7,
+            RentalType.Monthly => Duration * 30,
+            RentalType.LongTerm => Duration * 365,
+            _ => throw new ArgumentOutOfRangeException(nameof(RentalType), "Invalid rental type")
+        };
 }
