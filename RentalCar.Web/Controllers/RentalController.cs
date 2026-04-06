@@ -1,6 +1,9 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalCar.Domain.Entities;
 using RentalCar.Domain.Enums;
+using RentalCar.Domain.Rules;
 using RentalCar.Infrastructure.Services;
 
 namespace RentalCar.Controllers;
@@ -20,18 +23,21 @@ public class RentalController : Controller
         var car = await _rentalServices.GetCarByIdAsync(id, cancellationToken);
         if (car == null) return NotFound();
 
+        var startUtc = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
         var model = new Rental
         {
             CarId = car.Id,
             Car = car,
             RentalType = RentalType.Daily,
-            Duration = 1
+            Duration = 1,
+            StartDate = startUtc
         };
 
         return View(model);
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> RentCar(
         int id,
         RentalType rentalType,
@@ -41,27 +47,68 @@ public class RentalController : Controller
         var car = await _rentalServices.GetCarByIdAsync(id, cancellationToken);
         if (car == null) return NotFound();
 
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Challenge();
+
         if (duration <= 0)
         {
             ModelState.AddModelError(nameof(duration), "Süre 0 veya negatif olamaz.");
-            var backModel = new Rental { CarId = car.Id, Car = car, RentalType = rentalType, Duration = duration };
+            var backModel = new Rental
+            {
+                CarId = car.Id,
+                Car = car,
+                RentalType = rentalType,
+                Duration = duration,
+                StartDate = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc)
+            };
+            return View(backModel);
+        }
+
+        var effectiveDuration = rentalType == RentalType.LongTerm ? 12 : duration;
+        var startUtc = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
+
+        try
+        {
+            RentalDateRules.ValidateSchedule(startUtc, rentalType, effectiveDuration);
+        }
+        catch (InvalidOperationException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            var backModel = new Rental
+            {
+                CarId = car.Id,
+                Car = car,
+                RentalType = rentalType,
+                Duration = duration,
+                StartDate = startUtc
+            };
             return View(backModel);
         }
 
         var totalPrice = CalculateTotalPrice(car, rentalType, duration);
+        var now = DateTime.UtcNow;
 
         var rental = new Rental
         {
             CarId = car.Id,
-            Car = car,
+            UserId = userId,
             RentalType = rentalType,
-            Duration = (rentalType == RentalType.LongTerm) ? 12 : duration,
-            TotalPrice = totalPrice
+            Duration = effectiveDuration,
+            TotalPrice = totalPrice,
+            StartDate = startUtc,
+            Status = RentalStatus.Confirmed,
+            CreatedOn = now,
+            ModifiedOn = now
         };
 
         await _rentalServices.CreateAsync(rental, cancellationToken);
 
-        return View("RentalResult", rental);
+        var created = await _rentalServices.GetRentalByIdWithCarAsync(rental.Id, cancellationToken);
+        if (created == null)
+            return NotFound();
+
+        return View("RentalResult", created);
     }
 
     [HttpGet]
@@ -70,13 +117,15 @@ public class RentalController : Controller
         var car = await _rentalServices.GetCarByIdAsync(carId, cancellationToken);
         if (car == null) return NotFound();
 
+        var startUtc = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
         var model = new Rental
         {
             CarId = car.Id,
             Car = car,
             RentalType = RentalType.Daily,
             Duration = 1,
-            TotalPrice = 0
+            TotalPrice = 0,
+            StartDate = startUtc
         };
 
         return View(model);
@@ -96,6 +145,9 @@ public class RentalController : Controller
         }
 
         rental.Car = car;
+
+        if (rental.StartDate == default || rental.StartDate.Kind != DateTimeKind.Utc)
+            rental.StartDate = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
 
         var totalPrice = CalculateTotalPrice(car, rental.RentalType, rental.Duration);
 

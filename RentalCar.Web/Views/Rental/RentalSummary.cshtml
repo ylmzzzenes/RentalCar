@@ -1,4 +1,5 @@
 @model RentalCar.Domain.Entities.Rental
+@using RentalCar.Domain.Enums
 @{
     ViewData["Title"] = "Kiralama Ozeti";
 }
@@ -10,6 +11,17 @@
             <p><strong>Arac:</strong> @(Model.Car?.CatalogBrand ?? Model.Car?.Brand) @Model.Car?.Model</p>
             <p><strong>Kiralama Turu:</strong> @Model.RentalType</p>
             <p><strong>Sure:</strong> @Model.Duration</p>
+            <p><strong>Başlangıç / Bitiş (UTC):</strong> @Model.StartDate.ToString("yyyy-MM-dd") — @Model.EndDate.ToString("yyyy-MM-dd")</p>
+            <p><strong>Durum:</strong> @(Model.Status switch
+            {
+                RentalStatus.Draft => "Taslak",
+                RentalStatus.PendingConfirmation => "Onay bekliyor",
+                RentalStatus.Confirmed => "Onaylandı",
+                RentalStatus.Active => "Aktif",
+                RentalStatus.Completed => "Tamamlandı",
+                RentalStatus.Cancelled => "İptal",
+                _ => Model.Status.ToString()
+            })</p>
             <p><strong>Toplam Tutar:</strong> <span class="text-success fw-bold">@Model.TotalPrice.ToString("N2") TL</span></p>
         </div>
         <div class="col-md-6">

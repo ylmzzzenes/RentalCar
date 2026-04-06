@@ -20,6 +20,18 @@
 
             <p><strong>Kiralama Tipi:</strong> @Model.RentalType</p>
             <p><strong>Süre:</strong> @Model.Duration</p>
+            <p><strong>Başlangıç (UTC):</strong> @Model.StartDate.ToString("yyyy-MM-dd")</p>
+            <p><strong>Bitiş (UTC):</strong> @Model.EndDate.ToString("yyyy-MM-dd")</p>
+            <p><strong>Durum:</strong> @(Model.Status switch
+            {
+                RentalStatus.Draft => "Taslak",
+                RentalStatus.PendingConfirmation => "Onay bekliyor",
+                RentalStatus.Confirmed => "Onaylandı",
+                RentalStatus.Active => "Aktif",
+                RentalStatus.Completed => "Tamamlandı",
+                RentalStatus.Cancelled => "İptal",
+                _ => Model.Status.ToString()
+            })</p>
             <p><strong>Toplam Ücret:</strong> <span class="text-success fw-bold">@Model.TotalPrice ₺</span></p>
 
             <div class="mt-3">
