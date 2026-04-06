@@ -1,10 +1,19 @@
+using System.ComponentModel.DataAnnotations;
+using RentalCar.Domain.Common;
 using RentalCar.Domain.Enums;
+using RentalCar.Domain.Rules;
 
 namespace RentalCar.Domain.Entities;
 
-public class Rental
+public class Rental : BaseEntity
 {
     public int Id { get; set; }
+
+    [Required]
+    [MaxLength(450)]
+    public string UserId { get; set; } = string.Empty;
+
+    public AppUser? User { get; set; }
 
     public int CarId { get; set; }
     public Car Car { get; set; } = null!;
@@ -15,17 +24,11 @@ public class Rental
 
     public decimal TotalPrice { get; set; }
 
+    /// <summary>Kiralama başlangıcı (UTC, genelde gün başı).</summary>
     public DateTime StartDate { get; set; }
 
-    public DateTime EndDate => StartDate.AddDays((double)CalculateTotalDays);
+    public RentalStatus Status { get; set; } = RentalStatus.PendingConfirmation;
 
-    private decimal CalculateTotalDays =>
-        RentalType switch
-        {
-            RentalType.Daily => Duration,
-            RentalType.Weekly => Duration * 7,
-            RentalType.Monthly => Duration * 30,
-            RentalType.LongTerm => Duration * 365,
-            _ => throw new ArgumentOutOfRangeException(nameof(RentalType), "Invalid rental type")
-        };
+    /// <summary>Süre ve kiralama tipine göre hesaplanan bitiş (UTC).</summary>
+    public DateTime EndDate => RentalDateRules.ComputeEndUtc(StartDate, RentalType, Duration);
 }
