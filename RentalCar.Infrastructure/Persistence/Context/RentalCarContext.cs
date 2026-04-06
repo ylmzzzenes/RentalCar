@@ -88,5 +88,11 @@ public partial class RentalCarContext : IdentityDbContext<AppUser, AppRole, stri
         builder.Entity<Car>().Property(x => x.PredictedPriceMax).HasPrecision(18, 2);
         builder.Entity<Rental>().Property(x => x.Duration).HasPrecision(18, 2);
         builder.Entity<Rental>().Property(x => x.TotalPrice).HasPrecision(18, 2);
+
+        builder.Entity<Rental>()
+            .HasOne(r => r.User)
+            .WithMany()
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
