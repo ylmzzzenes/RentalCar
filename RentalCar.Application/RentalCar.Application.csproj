@@ -10,4 +10,8 @@
     <ProjectReference Include="..\RentalCar.Domain\RentalCar.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Dtos\Cars\" />
+  </ItemGroup>
+
 </Project>
