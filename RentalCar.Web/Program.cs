@@ -103,6 +103,7 @@ namespace RentalCar
             builder.Services.AddScoped<IRecommendationService, RecommendationService>();
             builder.Services.AddScoped<IPricingService, PricingService>();
             builder.Services.AddScoped<IFaqService, FaqService>();
+            builder.Services.AddScoped<ICarInteractionService, CarInteractionService>();
 
             var aiBaseUrl = builder.Configuration["AiApi:BaseUrl"] ?? "http://localhost:8000";
             builder.Services.AddHttpClient<PricingApiClient>(client =>
