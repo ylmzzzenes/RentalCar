@@ -8,9 +8,12 @@ using RentalCar.Domain.Entities;
 using RentalCar.Infrastructure.Identity;
 using RentalCar.Infrastructure.AI.Services;
 using RentalCar.Infrastructure.Persistence.Context;
-using RentalCar.Infrastructure.Services;
 using RentalCar.Infrastructure.Services.Email;
 using System.Net.Http.Headers;
+using RentalCar.Infrastructure.Services.Cars;
+using RentalCar.Infrastructure.Services.Rentals;
+using RentalCar.Application.Abstractions.Services.Cars;
+using RentalCar.Application.Abstractions.Services.Rentals;
 
 
 
@@ -104,6 +107,7 @@ namespace RentalCar
             builder.Services.AddScoped<IPricingService, PricingService>();
             builder.Services.AddScoped<IFaqService, FaqService>();
             builder.Services.AddScoped<ICarInteractionService, CarInteractionService>();
+            builder.Services.AddScoped<IRentalAppService, RentalAppService>();
 
             var aiBaseUrl = builder.Configuration["AiApi:BaseUrl"] ?? "http://localhost:8000";
             builder.Services.AddHttpClient<PricingApiClient>(client =>
