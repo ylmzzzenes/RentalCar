@@ -7,13 +7,13 @@ using RentalCar.Domain.Entities;
 using RentalCar.Domain.Enums;
 using RentalCar.Infrastructure.AI.Services;
 using RentalCar.Infrastructure.Persistence.Context;
-using RentalCar.Infrastructure.Services;
 using RentalCar.ViewModels;
 using RentalCar.Web.Models.Requests;
 using System.Security.Claims;
 using VehicleDriveType = RentalCar.Domain.Enums.DriveType;
-using RentalCar.Application.Abstractions.Services;
 using System.Xml.Linq;
+using RentalCar.Infrastructure.Services.Cars;
+using RentalCar.Application.Abstractions.Services.Cars;
 
 namespace RentalCar.Controllers;
 

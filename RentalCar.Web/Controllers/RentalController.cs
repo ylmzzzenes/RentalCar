@@ -1,172 +1,113 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RentalCar.Domain.Entities;
-using RentalCar.Domain.Enums;
-using RentalCar.Domain.Rules;
-using RentalCar.Infrastructure.Services;
+using RentalCar.Application.Abstractions.Services.Rentals;
+using RentalCar.Web.ViewModels.Rentals;
+using RentalPageDto = RentalCar.Application.Dtos.Rentals.RentalPageDto;
 
 namespace RentalCar.Controllers;
 
 public class RentalController : Controller
 {
-    private readonly RentalServices _rentalServices;
+    private readonly IRentalAppService _rentalAppService;
 
-    public RentalController(RentalServices rentalServices)
+    public RentalController(IRentalAppService rentalAppService)
     {
-        _rentalServices = rentalServices;
+        _rentalAppService = rentalAppService;
     }
 
     [HttpGet]
     public async Task<IActionResult> RentCar(int id, CancellationToken cancellationToken = default)
     {
-        var car = await _rentalServices.GetCarByIdAsync(id, cancellationToken);
-        if (car == null) return NotFound();
+        var page = await _rentalAppService.GetRentCarPageAsync(id, cancellationToken);
+        if (page == null)
+            return NotFound();
 
-        var startUtc = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
-        var model = new Rental
-        {
-            CarId = car.Id,
-            Car = car,
-            RentalType = RentalType.Daily,
-            Duration = 1,
-            StartDate = startUtc
-        };
-
+        var model = MapToPageViewModel(page);
         return View(model);
     }
 
     [HttpPost]
     [Authorize]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> RentCar(
-        int id,
-        RentalType rentalType,
-        decimal duration,
+        RentCarPageViewModel model,
         CancellationToken cancellationToken = default)
     {
-        var car = await _rentalServices.GetCarByIdAsync(id, cancellationToken);
-        if (car == null) return NotFound();
-
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-            return Challenge();
-
-        if (duration <= 0)
+        if (!ModelState.IsValid)
         {
-            ModelState.AddModelError(nameof(duration), "Süre 0 veya negatif olamaz.");
-            var backModel = new Rental
-            {
-                CarId = car.Id,
-                Car = car,
-                RentalType = rentalType,
-                Duration = duration,
-                StartDate = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc)
-            };
-            return View(backModel);
+            var page = await _rentalAppService.GetRentCarPageAsync(model.Form.CarId, cancellationToken);
+            if (page == null)
+                return NotFound();
+
+            model.Car = MapCarSummary(page);
+            return View(model);
         }
 
-        var effectiveDuration = rentalType == RentalType.LongTerm ? 12 : duration;
-        var startUtc = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
+        var result = await _rentalAppService.CreateRentalAsync(
+            model.Form.CarId,
+            model.Form.RentalType,
+            model.Form.Duration,
+            cancellationToken);
 
-        try
+        if (!result.Success)
         {
-            RentalDateRules.ValidateSchedule(startUtc, rentalType, effectiveDuration);
-        }
-        catch (InvalidOperationException ex)
-        {
-            ModelState.AddModelError(string.Empty, ex.Message);
-            var backModel = new Rental
-            {
-                CarId = car.Id,
-                Car = car,
-                RentalType = rentalType,
-                Duration = duration,
-                StartDate = startUtc
-            };
-            return View(backModel);
+            ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Kiralama işlemi başarısız.");
+
+            var page = await _rentalAppService.GetRentCarPageAsync(model.Form.CarId, cancellationToken);
+            if (page == null)
+                return NotFound();
+
+            model.Car = MapCarSummary(page);
+            return View(model);
         }
 
-        var totalPrice = CalculateTotalPrice(car, rentalType, duration);
-        var now = DateTime.UtcNow;
-
-        var rental = new Rental
-        {
-            CarId = car.Id,
-            UserId = userId,
-            RentalType = rentalType,
-            Duration = effectiveDuration,
-            TotalPrice = totalPrice,
-            StartDate = startUtc,
-            Status = RentalStatus.Confirmed,
-            CreatedOn = now,
-            ModifiedOn = now
-        };
-
-        await _rentalServices.CreateAsync(rental, cancellationToken);
-
-        var created = await _rentalServices.GetRentalByIdWithCarAsync(rental.Id, cancellationToken);
-        if (created == null)
-            return NotFound();
-
-        return View("RentalResult", created);
+        return RedirectToAction(nameof(RentalResult), new { id = result.Rental!.Id });
     }
 
     [HttpGet]
-    public async Task<IActionResult> RentalResult(int carId, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> RentalResult(int id, CancellationToken cancellationToken = default)
     {
-        var car = await _rentalServices.GetCarByIdAsync(carId, cancellationToken);
-        if (car == null) return NotFound();
+        var result = await _rentalAppService.GetRentalresultAsync(id, cancellationToken);
+        if (result == null || result.Rental == null)
+            return NotFound();
 
-        var startUtc = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
-        var model = new Rental
+        return View(result.Rental);
+    }
+
+    private static RentCarPageViewModel MapToPageViewModel(RentalPageDto page)
+    {
+        return new RentCarPageViewModel
         {
-            CarId = car.Id,
-            Car = car,
-            RentalType = RentalType.Daily,
-            Duration = 1,
-            TotalPrice = 0,
-            StartDate = startUtc
+            Car = MapCarSummary(page),
+            Form = new RentalFormViewModel
+            {
+                CarId = page.CarId,
+                RentalType = page.RentalType,
+                Duration = page.Duration
+            }
         };
-
-        return View(model);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> RentalResult(Rental rental, CancellationToken cancellationToken = default)
+    private static CarRentalSummaryViewModel MapCarSummary(RentalPageDto page)
     {
-        var car = await _rentalServices.GetCarByIdAsync(rental.CarId, cancellationToken);
-        if (car == null) return NotFound();
-
-        if (rental.Duration <= 0)
+        return new CarRentalSummaryViewModel
         {
-            ModelState.AddModelError(nameof(rental.Duration), "Süre 0 veya negatif olamaz.");
-            rental.Car = car;
-            return View(rental);
-        }
-
-        rental.Car = car;
-
-        if (rental.StartDate == default || rental.StartDate.Kind != DateTimeKind.Utc)
-            rental.StartDate = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
-
-        var totalPrice = CalculateTotalPrice(car, rental.RentalType, rental.Duration);
-
-        ViewBag.TotalPrice = totalPrice;
-
-        rental.TotalPrice = totalPrice;
-
-        return View("RentalSummary", rental);
-    }
-
-    private static decimal CalculateTotalPrice(Car car, RentalType rentalType, decimal duration)
-    {
-        return rentalType switch
-        {
-            RentalType.Daily => car.DailyPrice * duration,
-            RentalType.Weekly => car.WeeklyPrice * duration,
-            RentalType.Monthly => car.MonthlyPrice * duration,
-            RentalType.LongTerm => car.MonthlyPrice * 12,
-            _ => 0m
+            CarId = page.CarId,
+            Brand = page.Brand,
+            Model = page.Model,
+            Plate = page.Plate,
+            ModelYear = page.ModelYear,
+            FuelType = page.FuelType,
+            Transmission = page.Transmission,
+            BodyType = page.BodyType,
+            Color = page.Color,
+            Security = page.Security,
+            InternalEquipment = page.InternalEquipment,
+            ExternalEquipment = page.ExternalEquipment,
+            ImageUrls = page.ImageUrls ?? new List<string>(),
+            DailyPrice = page.DailyPrice,
+            WeeklyPrice = page.WeeklyPrice,
+            MonthlyPrice = page.MonthlyPrice
         };
     }
 }
