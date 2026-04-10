@@ -3,7 +3,7 @@ using RentalCar.Domain.Entities;
 using RentalCar.Domain.Rules;
 using RentalCar.Infrastructure.Persistence.Context;
 
-namespace RentalCar.Infrastructure.Services;
+namespace RentalCar.Infrastructure.Services.Rentals;
 
 public class RentalServices
 {

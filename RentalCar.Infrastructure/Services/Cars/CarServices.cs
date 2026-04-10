@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using RentalCar.Domain.Entities;
 using RentalCar.Infrastructure.Persistence.Context;
 
-namespace RentalCar.Infrastructure.Services;
+namespace RentalCar.Infrastructure.Services.Cars;
 
 public class CarServices
 {
