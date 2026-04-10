@@ -12,6 +12,8 @@ using RentalCar.ViewModels;
 using RentalCar.Web.Models.Requests;
 using System.Security.Claims;
 using VehicleDriveType = RentalCar.Domain.Enums.DriveType;
+using RentalCar.Application.Abstractions.Services;
+using System.Xml.Linq;
 
 namespace RentalCar.Controllers;
 
@@ -20,21 +22,16 @@ public class CarController : Controller
     private readonly CarServices _carsServices;
     private readonly PricingApiClient _pricing;
     private readonly DescriptionService _descriptionService;
-    private readonly RentalCarContext _context;
     private readonly UserManager<AppUser> _userManager;
+    public readonly ICarInteractionService _carInteractionService;
 
-    public CarController(
-        CarServices carServices,
-        PricingApiClient pricing,
-        DescriptionService descriptionService,
-        RentalCarContext context,
-        UserManager<AppUser> userManager)
+    public CarController(CarServices carServices, PricingApiClient pricing, DescriptionService descriptionService, RentalCarContext context, UserManager<AppUser> userManager, ICarInteractionService carInteractionService)
     {
         _carsServices = carServices;
         _pricing = pricing;
         _descriptionService = descriptionService;
-        _context = context;
         _userManager = userManager;
+        _carInteractionService = carInteractionService;
     }
 
     [Authorize(Roles = "Admin")]
@@ -48,16 +45,7 @@ public class CarController : Controller
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create(
-        CreateCar request,
-        List<int> SelectedSecurity,
-        List<int> SelectedInternal,
-        List<int> SelectedExternal,
-        List<int> SelectedBodyType,
-        List<int> SelectedFuelType,
-        List<int> SelectedGear,
-        List<int> SelectedDriveType,
-        CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Create(CreateCar request, List<int> SelectedSecurity, List<int> SelectedInternal, List<int> SelectedExternal, List<int> SelectedBodyType, List<int> SelectedFuelType, List<int> SelectedGear, List<int> SelectedDriveType, CancellationToken cancellationToken = default)
     {
         Car newCar = new Car();
         var fileNames = new List<string>();
@@ -251,16 +239,7 @@ public class CarController : Controller
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> List(
-        string? brand,
-        string? model,
-        string? renk,
-        FuelType? yakitTuru,
-        Gear? vites,
-        BodyType? bodyType,
-        int? yil,
-        string? searchString,
-        CancellationToken cancellationToken = default)
+    public async Task<IActionResult> List(string? brand, string? model, string? renk, FuelType? yakitTuru, Gear? vites, BodyType? bodyType, int? yil, string? searchString, CancellationToken cancellationToken = default)
     {
         var all = await _carsServices.GetAllAsync(cancellationToken);
         if (all == null)
@@ -313,48 +292,31 @@ public class CarController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Details(int id, CancellationToken cancellationToken = default)
     {
-        var car = await _carsServices.GetByIdAsync(id, cancellationToken);
-        if (car == null) return NotFound();
-        if (!car.IsApproved && !User.IsInRole("Admin")) return NotFound();
-
-        var comments = await _context.CarComments
-            .AsNoTracking()
-            .Where(x => x.CarId == id)
-            .OrderByDescending(x => x.CreatedOn)
-            .Take(50)
-            .ToListAsync(cancellationToken);
-
-        var commentUserIds = comments.Select(x => x.UserId).Distinct().ToList();
-        var commentUserMap = await _context.Users
-            .Where(x => commentUserIds.Contains(x.Id))
-            .ToDictionaryAsync(x => x.Id, x => x.UserName ?? "Kullanici", cancellationToken);
-
-        foreach (var c in comments)
-        {
-            if (commentUserMap.TryGetValue(c.UserId, out var userName))
-            {
-                c.Content = $"{userName}|{c.Content}";
-            }
-        }
-
-        var ratings = await _context.CarRatings
-            .AsNoTracking()
-            .Where(x => x.CarId == id)
-            .ToListAsync(cancellationToken);
-
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var currentRating = userId is null ? null : ratings.FirstOrDefault(x => x.UserId == userId)?.Score;
-        var isFavorite = userId is not null &&
-                         await _context.Favorites.AnyAsync(x => x.CarId == id && x.UserId == userId, cancellationToken);
+        var isAdmin = User.IsInRole("Admin");
+
+        var result = await _carInteractionService.GetCarDetailAsync(
+            id,
+            userId,
+            isAdmin,
+            cancellationToken);
+
+        if (result == null) return NotFound();
 
         var model = new CarDetailsViewModel
         {
-            Car = car,
-            Comments = comments,
-            AverageRating = ratings.Count == 0 ? 0 : ratings.Average(x => x.Score),
-            RatingCount = ratings.Count,
-            CurrentUserRating = currentRating,
-            IsFavorite = isFavorite
+            Car = result.Car,
+            Comments = result.Comments.Select(x => new CarComment
+            {
+                Id = x.Id,
+                Content = $"{x.UserName}|{x.Content}",
+                CreatedOn = x.CreatedOn
+
+            }).ToList(),
+            AverageRating = result.AverageRating,
+            RatingCount = result.RatingCount,
+            CurrentUserRating = result.CurrentUserRating,
+            IsFavorite = result.IsFavorite
         };
 
         return View(model);
@@ -365,57 +327,29 @@ public class CarController : Controller
     public async Task<IActionResult> ToggleFavorite(int carId, CancellationToken cancellationToken = default)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrWhiteSpace(userId)) return Challenge();
-
-        var favorite = await _context.Favorites.FirstOrDefaultAsync(x => x.CarId == carId && x.UserId == userId, cancellationToken);
-        if (favorite == null)
-        {
-            _context.Favorites.Add(new Favorite
-            {
-                CarId = carId,
-                UserId = userId,
-                CreatedOn = DateTime.Now,
-                ModifiedOn = DateTime.Now
-            });
-        }
-        else
-        {
-            _context.Favorites.Remove(favorite);
-        }
-
-        await _context.SaveChangesAsync(cancellationToken);
-        return RedirectToAction(nameof(Details), new { id = carId });
+        if (string.IsNullOrWhiteSpace(userId)) 
+            return Challenge();
+        await _carInteractionService.ToggledFavoriteAsync(carId, userId, cancellationToken);
+        return RedirectToAction(nameof(Details), new {id = carId});
     }
 
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Rate(int carId, int score, CancellationToken cancellationToken = default)
     {
-        if (score < 1 || score > 5)
-            return RedirectToAction(nameof(Details), new { id = carId });
-
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrWhiteSpace(userId)) return Challenge();
+        if (string.IsNullOrWhiteSpace(userId))
+            return Challenge();
 
-        var rating = await _context.CarRatings.FirstOrDefaultAsync(x => x.CarId == carId && x.UserId == userId, cancellationToken);
-        if (rating == null)
+        try
         {
-            _context.CarRatings.Add(new CarRating
-            {
-                CarId = carId,
-                UserId = userId,
-                Score = score,
-                CreatedOn = DateTime.Now,
-                ModifiedOn = DateTime.Now
-            });
+            await _carInteractionService.RateAsync(carId, userId, score, cancellationToken);
         }
-        else
+        catch(ArgumentException)
         {
-            rating.Score = score;
-            rating.ModifiedOn = DateTime.Now;
+            return RedirectToAction(nameof(Details), new {id =carId});
         }
 
-        await _context.SaveChangesAsync(cancellationToken);
         return RedirectToAction(nameof(Details), new { id = carId });
     }
 
@@ -424,20 +358,19 @@ public class CarController : Controller
     public async Task<IActionResult> AddComment(int carId, string content, CancellationToken cancellationToken = default)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrWhiteSpace(userId)) return Challenge();
-        if (string.IsNullOrWhiteSpace(content))
-            return RedirectToAction(nameof(Details), new { id = carId });
+        if(string.IsNullOrWhiteSpace(userId))
+            return Challenge();
 
-        _context.CarComments.Add(new CarComment
+        try
         {
-            CarId = carId,
-            UserId = userId,
-            Content = content.Trim(),
-            CreatedOn = DateTime.Now,
-            ModifiedOn = DateTime.Now
-        });
-        await _context.SaveChangesAsync(cancellationToken);
-        return RedirectToAction(nameof(Details), new { id = carId });
+            await _carInteractionService.AddCommentAsync(carId, userId, content, cancellationToken);
+        }
+        catch (ArgumentException)
+        {
+            return RedirectToAction(nameof(Details), new {id = carId});
+        }
+
+        return RedirectToAction(nameof(Details), new {id = carId});
     }
 
     [HttpGet]
