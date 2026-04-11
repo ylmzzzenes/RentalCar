@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalCar.Domain.Enums;
-using RentalCar.Infrastructure.Services;
+using RentalCar.Infrastructure.Services.Cars;
 
 namespace RentalCar.Controllers;
 
