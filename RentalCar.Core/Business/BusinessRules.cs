@@ -1,6 +1,6 @@
 ﻿using RentalCar.Core.Utilities.Results.Abstract;
 
-namespace RentalCar.Core.Utilities.Business;
+namespace RentalCar.Core.Business;
 
 public static class BusinessRules
 {
