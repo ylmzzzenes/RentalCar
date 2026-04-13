@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalCar.Domain.Enums;
 using RentalCar.Infrastructure.Services.Cars;
+using RentalCar.Models;
 
 namespace RentalCar.Controllers;
 
@@ -32,9 +33,19 @@ public class HomeController : Controller
 
     [HttpGet]
     [AllowAnonymous]
+    [Route("Home/Error")]
     public IActionResult Error()
     {
-        return View();
+        var exceptionFeature = HttpContext.Features.Get<IExceptionHandlerFeature>();
+
+        var model = new ErrorViewModel
+        {
+            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+            Message = httpcontext.Items[ExceptionMessage] as string
+                      ?? exceptionFeature?.Error?.Message
+                        ?? "Beklenmeyen bir hata oluþtu."
+        };
+        return View(model);
     }
 
     [HttpGet]

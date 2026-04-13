@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
   </ItemGroup>
@@ -15,6 +16,7 @@
     <ProjectReference Include="..\RentalCar.Application\RentalCar.Application.csproj" />
     <ProjectReference Include="..\RentalCar.Domain\RentalCar.Domain.csproj" />
     <ProjectReference Include="..\RentalCar.Infrastructure\RentalCar.Infrastructure.csproj" />
+	  <ProjectReference Include="..\RentalCar.Core\RentalCar.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,19 +1,4 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using RentalCar.AI.Configuration;
-using RentalCar.AI.Services;
-using RentalCar.Application.Abstractions.AI;
-using RentalCar.Application.Abstractions.Services;
-using RentalCar.Domain.Entities;
-using RentalCar.Infrastructure.Identity;
-using RentalCar.Infrastructure.AI.Services;
-using RentalCar.Infrastructure.Persistence.Context;
-using RentalCar.Infrastructure.Services.Email;
-using System.Net.Http.Headers;
-using RentalCar.Infrastructure.Services.Cars;
-using RentalCar.Infrastructure.Services.Rentals;
-using RentalCar.Application.Abstractions.Services.Cars;
-using RentalCar.Application.Abstractions.Services.Rentals;
+using RentalCar.Web.Extensions;
 
 
 
@@ -125,9 +110,14 @@ namespace RentalCar
 
             var app = builder.Build();
 
-            
+            app.UseCustomExceptionMiddleware();
 
             if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/Home/Error");
+                app.UseHsts();
+            }
+            else
             {
                 app.UseExceptionHandler("/Home/Error");
             }
