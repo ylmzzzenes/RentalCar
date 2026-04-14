@@ -1,12 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Castle.DynamicProxy;
+using System.Reflection;
 
 namespace RentalCar.Core.Interceptors
 {
-    internal class AspectInterceptorSelector
+    public class AspectInterceptorSelector: IInterceptorSelector
     {
+        public IInterceptor[] SelectInterceptors(Type type, MethodInfo method, IInterceptor[] interceptors)
+        {
+            var classAttributes = type.GetCustomAttributes<MethodInterceptionBaseAttribute>(true).ToList();
+
+            var methodAttributes = method.GetCustomAttributes<MethodInterceptionBaseAttribute>(true).ToList();
+
+            classAttributes.AddRange(methodAttributes);
+
+            return classAttributes.OrderBy(x => x.Priority).ToArray();
+        }
     }
 }
