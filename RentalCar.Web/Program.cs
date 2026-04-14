@@ -1,5 +1,22 @@
 using RentalCar.Web.Extensions;
-
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using RentalCar.Application.DependencyResolvers.Autofac;
+using RentalCar.Infrastructure.Persistence.Context;
+using Microsoft.EntityFrameworkCore;
+using RentalCar.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using RentalCar.Application.Abstractions.Services;
+using RentalCar.Infrastructure.Services.Email;
+using RentalCar.Infrastructure.Services.Cars;
+using RentalCar.Infrastructure.Services.Rentals;
+using RentalCar.AI.Configuration;
+using RentalCar.Application.Abstractions.AI;
+using RentalCar.AI.Services;
+using RentalCar.Application.Abstractions.Services.Cars;
+using RentalCar.Infrastructure.AI.Services;
+using System.Net.Http.Headers;
+using RentalCar.Infrastructure.Identity;
 
 
 
@@ -10,7 +27,14 @@ namespace RentalCar
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-           
+
+            builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+
+            builder.Host.ConfigureContainer<ContainerBuilder>(builder =>
+            {
+                builder.RegisterModule(new AutofacApplicationModule());
+            });
+
             builder.Services.AddDbContext<RentalCarContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("RentalCarDb"));
@@ -92,7 +116,7 @@ namespace RentalCar
             builder.Services.AddScoped<IPricingService, PricingService>();
             builder.Services.AddScoped<IFaqService, FaqService>();
             builder.Services.AddScoped<ICarInteractionService, CarInteractionService>();
-            builder.Services.AddScoped<IRentalAppService, RentalAppService>();
+           
 
             var aiBaseUrl = builder.Configuration["AiApi:BaseUrl"] ?? "http://localhost:8000";
             builder.Services.AddHttpClient<PricingApiClient>(client =>

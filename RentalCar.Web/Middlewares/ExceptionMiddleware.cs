@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using RentalCar.Core.Exceptions;
 
 
@@ -9,10 +9,10 @@ namespace RentalCar.Web.Middlewares
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionMiddleware> _logger;
 
-        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> _logger)
+        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
         {
             _next = next;
-            _logger = _logger;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -46,9 +46,9 @@ namespace RentalCar.Web.Middlewares
                     break;
             }
 
-            votext.Items["ExceptionMessage"] = message;
-
-            return Task.FromException(exception);
+            context.Items["ExceptionMessage"] = message;
+            context.Response.Redirect("/Home/Error");
+            return Task.CompletedTask;
         }
     }
 }

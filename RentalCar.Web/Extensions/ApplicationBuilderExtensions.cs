@@ -1,4 +1,4 @@
-﻿using RentalCar.Web.Middlewares;
+using RentalCar.Web.Middlewares;
 
 namespace RentalCar.Web.Extensions
 {
@@ -6,7 +6,7 @@ namespace RentalCar.Web.Extensions
     {
         public static IApplicationBuilder UseCustomExceptionMiddleware(this IApplicationBuilder app)
         {
-            return app.UserMiddleWare<ExceptionMiddleware>();
+            return app.UseMiddleware<ExceptionMiddleware>();
         }
     }
 }

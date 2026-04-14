@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using RentalCar.Domain.Enums;
 using RentalCar.Infrastructure.Services.Cars;
 using RentalCar.Models;
@@ -41,9 +43,9 @@ public class HomeController : Controller
         var model = new ErrorViewModel
         {
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
-            Message = httpcontext.Items[ExceptionMessage] as string
+            Message = HttpContext.Items["ExceptionMessage"] as string
                       ?? exceptionFeature?.Error?.Message
-                        ?? "Beklenmeyen bir hata oluþtu."
+                        ?? "Beklenmeyen bir hata olustu."
         };
         return View(model);
     }
