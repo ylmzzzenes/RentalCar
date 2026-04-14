@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using RentalCar.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using RentalCar.Application.Abstractions.Services;
-using RentalCar.Infrastructure.Services.Email;
 using RentalCar.Infrastructure.Services.Cars;
 using RentalCar.Infrastructure.Services.Rentals;
 using RentalCar.AI.Configuration;
@@ -18,8 +17,6 @@ using RentalCar.Infrastructure.AI.Services;
 using System.Net.Http.Headers;
 using RentalCar.Infrastructure.Identity;
 
-
-
 namespace RentalCar
 {
     public class Program
@@ -28,25 +25,27 @@ namespace RentalCar
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Autofac'i ana DI container olarak kullan
             builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
-            builder.Host.ConfigureContainer<ContainerBuilder>(builder =>
+            builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
             {
-                builder.RegisterModule(new AutofacApplicationModule());
+                containerBuilder.RegisterModule(new AutofacApplicationModule());
             });
 
+            // DbContext
             builder.Services.AddDbContext<RentalCarContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("RentalCarDb"));
             });
 
-            builder.Services.AddIdentity<AppUser, AppRole>().
-                AddEntityFrameworkStores<RentalCarContext>().
-                AddDefaultTokenProviders();
+            // Identity
+            builder.Services.AddIdentity<AppUser, AppRole>()
+                .AddEntityFrameworkStores<RentalCarContext>()
+                .AddDefaultTokenProviders();
 
             builder.Services.Configure<IdentityOptions>(options =>
             {
-
                 options.Password.RequiredLength = 6;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireLowercase = true;
@@ -62,27 +61,10 @@ namespace RentalCar
                 options.ExpireTimeSpan = TimeSpan.FromDays(30);
             });
 
-
-            builder.Services.AddScoped<IEmailSender, SmtpEmailSender>(i =>
-            {
-                var host = builder.Configuration["EmailSender:Host"]
-                    ?? throw new InvalidOperationException("EmailSender:Host yapılandırılmamış.");
-                var userName = builder.Configuration["EmailSender:UserName"]
-                    ?? throw new InvalidOperationException("EmailSender:UserName yapılandırılmamış.");
-                var password = builder.Configuration["EmailSender:Password"]
-                    ?? throw new InvalidOperationException("EmailSender:Password yapılandırılmamış.");
-
-                return new SmtpEmailSender(
-                host,
-                builder.Configuration.GetValue<int>("EmailSender:Port"),
-                builder.Configuration.GetValue<bool>("EmailSender:EnableSSL"),
-                userName,
-                password
-
-            );
-            });
-
+            // MVC
             builder.Services.AddControllersWithViews();
+
+            // HttpContext / Cache / Session
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddMemoryCache();
             builder.Services.AddDistributedMemoryCache();
@@ -93,9 +75,11 @@ namespace RentalCar
                 options.IdleTimeout = TimeSpan.FromMinutes(45);
             });
 
+            // Uygulama servisleri
             builder.Services.AddScoped<CarServices>();
             builder.Services.AddScoped<RentalServices>();
 
+            // AI ayarları
             builder.Services.Configure<OpenAiOptions>(builder.Configuration.GetSection("OpenAI"));
             builder.Services.PostConfigure<OpenAiOptions>(options =>
             {
@@ -104,10 +88,12 @@ namespace RentalCar
                     options.ApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? string.Empty;
                 }
             });
+
             builder.Services.AddHttpClient<IAIService, AIService>(client =>
             {
                 client.Timeout = TimeSpan.FromSeconds(35);
             });
+
             builder.Services.AddScoped<IConversationMemoryService, ConversationMemoryService>();
             builder.Services.AddScoped<IIntentClassifier, IntentClassifier>();
             builder.Services.AddScoped<IToolLayerService, ToolLayerService>();
@@ -116,40 +102,41 @@ namespace RentalCar
             builder.Services.AddScoped<IPricingService, PricingService>();
             builder.Services.AddScoped<IFaqService, FaqService>();
             builder.Services.AddScoped<ICarInteractionService, CarInteractionService>();
-           
 
             var aiBaseUrl = builder.Configuration["AiApi:BaseUrl"] ?? "http://localhost:8000";
+
             builder.Services.AddHttpClient<PricingApiClient>(client =>
             {
                 client.BaseAddress = new Uri(aiBaseUrl);
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
+
             builder.Services.AddHttpClient<DescriptionService>(client =>
             {
                 client.BaseAddress = new Uri(aiBaseUrl);
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
 
             var app = builder.Build();
 
-            app.UseCustomExceptionMiddleware();
+            // Hata yakalama
+            app.UseExceptionHandler("/Home/Error");
 
             if (!app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
+
             app.UseStaticFiles();
             app.UseRouting();
             app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.MapControllers();
 
             using (var scope = app.Services.CreateScope())
@@ -157,12 +144,12 @@ namespace RentalCar
                 var db = scope.ServiceProvider.GetRequiredService<RentalCarContext>();
                 db.Database.Migrate();
             }
+
             IdentitySeedData.SeedAsync(app.Services).GetAwaiter().GetResult();
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
-
 
             app.Run();
         }

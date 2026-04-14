@@ -5,6 +5,10 @@ using System.Diagnostics;
 using RentalCar.Domain.Enums;
 using RentalCar.Infrastructure.Services.Cars;
 using RentalCar.Models;
+using Microsoft.AspNetCore.Mvc;
+using RentalCar.Application.Abstractions.Services.Cars;
+using RentalCar.Application.Contracts.Cars;
+using static Org.BouncyCastle.Asn1.Cmp.Challenge;
 
 namespace RentalCar.Controllers;
 
@@ -12,10 +16,73 @@ namespace RentalCar.Controllers;
 public class HomeController : Controller
 {
     private readonly CarServices _carsServices;
+    private readonly ICarAppService _carAppService;
 
-    public HomeController(CarServices carServices)
+    public HomeController(CarServices carServices, ICarAppService carAppService)
     {
         _carsServices = carServices;
+        _carAppService = carAppService;
+    }
+    [AllowAnonymous]
+    [HttpGet]
+    public IActionResult ValidationAspectSuccessTest()
+    {
+        try
+        {
+            var request = new CreateCarRequest
+            {
+                Brand = "Toyota",
+                Model = "Corolla",
+                PricePerDay = 2500,
+                Year = 2022,
+                FuelType = "Benzin",
+                Transmission = "Otomatik"
+            };
+
+            var result = _carAppService.Create(request);
+
+            return Content($"Success: {result.Success}, Message: {result.Message}");
+        }
+        catch (Exception ex)
+        {
+            return Content($"HATA: {ex.GetType().Name} - {ex.Message}");
+        }
+    }
+    [AllowAnonymous]
+    [HttpGet]
+    public IActionResult ValidationAspectBusinessRuleTest()
+    {
+        var request = new CreateCarRequest
+        {
+            Brand = "Admin",
+            Model = "Corolla",
+            PricePerDay = 2500,
+            Year = 2022,
+            FuelType = "Benzin",
+            Transmission = "Otomatik"
+        };
+
+        var result = _carAppService.Create(request);
+
+        return Content($"Success: {result.Success}, Message: {result.Message}");
+    }
+    [AllowAnonymous]
+    [HttpGet]
+    public IActionResult ValidationAspectValidationTest()
+    {
+        var request = new CreateCarRequest
+        {
+            Brand = "",
+            Model = "",
+            PricePerDay = 0,
+            Year = 1900,
+            FuelType = "",
+            Transmission = ""
+        };
+
+        var result = _carAppService.Create(request);
+
+        return Content($"Success: {result.Success}, Message: {result.Message}");
     }
 
     [HttpGet]

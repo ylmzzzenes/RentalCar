@@ -14,12 +14,17 @@ public class AutofacApplicationModule : Module
         var applicationAssembly = Assembly.GetExecutingAssembly();
         var infrastructureAssembly = Assembly.Load("RentalCar.Infrastructure");
 
-        builder.RegisterAssemblyTypes(applicationAssembly, infrastructureAssembly)
+        builder.RegisterAssemblyTypes(applicationAssembly)
             .AsImplementedInterfaces()
             .EnableInterfaceInterceptors(new ProxyGenerationOptions
             {
                 Selector = new AspectInterceptorSelector()
             })
+            .InstancePerLifetimeScope();
+
+        builder.RegisterAssemblyTypes(infrastructureAssembly)
+            .Where(t => t.Name != "SmtpEmailSender")
+            .AsImplementedInterfaces()
             .InstancePerLifetimeScope();
     }
 }
