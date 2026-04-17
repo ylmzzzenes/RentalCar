@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RentalCar.Infrastructure.Persistence.Context;
 
@@ -11,9 +12,11 @@ using RentalCar.Infrastructure.Persistence.Context;
 namespace RentalCar.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(RentalCarContext))]
-    partial class RentalCarContextModelSnapshot : ModelSnapshot
+    [Migration("20260417095714_AddPurchaseEntity")]
+    partial class AddPurchaseEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -356,9 +359,6 @@ namespace RentalCar.Infrastructure.Persistence.Migrations
                     b.Property<string>("Plate")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PostedByUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<decimal?>("PredictedPriceMax")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)")
@@ -433,8 +433,6 @@ namespace RentalCar.Infrastructure.Persistence.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PostedByUserId");
 
                     b.ToTable("Cars");
                 });
@@ -678,16 +676,6 @@ namespace RentalCar.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("RentalCar.Domain.Entities.Car", b =>
-                {
-                    b.HasOne("RentalCar.Domain.Entities.AppUser", "PostedBy")
-                        .WithMany()
-                        .HasForeignKey("PostedByUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("PostedBy");
                 });
 
             modelBuilder.Entity("RentalCar.Domain.Entities.CarComment", b =>
