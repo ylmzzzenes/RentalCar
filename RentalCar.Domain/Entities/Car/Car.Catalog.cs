@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using RentalCar.Domain.Enums;
 
 namespace RentalCar.Domain.Entities;
 
@@ -7,6 +8,9 @@ public partial class Car
 {
     [Column("modelraw")]
     public string? ModelRaw { get; set; }
+
+    [Column("seri")]
+    public string? Series { get; set; }
 
     [Column("marka")]
     public string? CatalogBrand { get; set; }
@@ -64,4 +68,16 @@ public partial class Car
 
     [Column("sahipSayisi")]
     public int? PreviousOwnerCount { get; set; }
+
+    [Column("yakit_deposu_lt")]
+    public int? FuelTankLiters { get; set; }
+
+    [Column("arac_durumu")]
+    public VehicleCondition VehicleCondition { get; set; }
+
+    [Column("takasa_uygun")]
+    public bool TradeInAccepted { get; set; }
+
+    [Column("kimden")]
+    public ListingSellerType SellerType { get; set; }
 }
