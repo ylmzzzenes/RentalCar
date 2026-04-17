@@ -1,17 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace RentalCar.Domain.Enums
 {
     [Flags]
     public enum Gear
     {
-        None=0,
-        Otomatik=1,
-        Manuel=2,
+        [Display(Name = "Seçiniz")]
+        None = 0,
+
+        [Display(Name = "Otomatik")]
+        Otomatik = 1,
+
+        [Display(Name = "Manuel")]
+        Manuel = 2,
+
+        [Display(Name = "Yarı otomatik")]
         YarıOtomatik = 4
     }
 }
