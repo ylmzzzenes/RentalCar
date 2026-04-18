@@ -8,4 +8,5 @@ public interface ICarAppService
 {
     IResult Create(CreateCarRequest request);
     IDataResult<Car> PrepareCarForCreate(CreateCarCommand command); 
+    Task<IDataResult<Car>> PrepareCarForCreateAsync(CreateCarCommand command, CancellationToken cancellationToken = default);
 }
