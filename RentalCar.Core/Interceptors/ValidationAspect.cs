@@ -28,7 +28,7 @@ namespace RentalCar.Core.Interceptors
 
             foreach (var entity in entities)
             {
-                ValidationTool.Validate(validator, entity);
+                ValidationTool.Validate(validator, entity!);
             }
         }
     }
