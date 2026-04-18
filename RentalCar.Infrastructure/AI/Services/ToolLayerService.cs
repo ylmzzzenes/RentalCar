@@ -28,11 +28,12 @@ namespace RentalCar.AI.Services
         {
             var tools = new object[]
             {
-                BuildTool("search_cars", "Sehir, fiyat, arac tipi ve yakit kriterleriyle arac arar.", new
+                BuildTool("search_cars", "Sehir, fiyat, arac tipi, yakit ve MARKA/MODEL (query) ile arac arar. Kullanici marka veya model soylediyse mutlaka query alanina yaz.", new
                 {
                     type = "object",
                     properties = new
                     {
+                        query = new { type = "string", description = "Marka, model, seri veya kullanici cumlesinden anahtar kelimeler (or. Toyota Corolla, BMW 320)" },
                         city = new { type = "string" },
                         start_date = new { type = "string", description = "YYYY-MM-DD" },
                         end_date = new { type = "string", description = "YYYY-MM-DD" },
@@ -96,13 +97,14 @@ namespace RentalCar.AI.Services
             {
                 case "search_cars":
                 {
+                    var searchQuery = GetString(root, "query") ?? GetString(root, "search_query");
                     var city = GetString(root, "city");
                     var vehicleType = GetString(root, "vehicle_type");
                     var fuelType = GetString(root, "fuel_type");
                     var minPrice = GetDecimal(root, "min_price");
                     var maxPrice = GetDecimal(root, "max_price");
 
-                    var cars = await _rentalService.SearchCarsAsync(city, vehicleType, minPrice, maxPrice, fuelType, cancellationToken);
+                    var cars = await _rentalService.SearchCarsAsync(searchQuery, city, vehicleType, minPrice, maxPrice, fuelType, cancellationToken);
                     var payload = new { count = cars.Count, cars };
 
                     return new ToolExecutionResult
@@ -111,6 +113,7 @@ namespace RentalCar.AI.Services
                         Cars = cars,
                         SuggestedFilters = new ChatFilterSuggestion
                         {
+                            Query = searchQuery,
                             City = city,
                             VehicleType = vehicleType,
                             MinPrice = minPrice,

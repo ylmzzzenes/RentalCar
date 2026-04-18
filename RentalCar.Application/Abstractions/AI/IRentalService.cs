@@ -5,6 +5,7 @@ namespace RentalCar.Application.Abstractions.AI
     public interface IRentalService
     {
         Task<List<ChatCarCard>> SearchCarsAsync(
+            string? searchQuery,
             string? city,
             string? vehicleType,
             decimal? minPrice,
