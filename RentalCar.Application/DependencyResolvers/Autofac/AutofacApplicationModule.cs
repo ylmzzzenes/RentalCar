@@ -2,6 +2,7 @@ using System.Reflection;
 using Autofac;
 using Autofac.Extras.DynamicProxy;
 using Castle.DynamicProxy;
+using RentalCar.Application.Services.Cars;
 using RentalCar.Core.Interceptors;
 using Module = Autofac.Module;
 
@@ -13,6 +14,10 @@ public class AutofacApplicationModule : Module
     {
         var applicationAssembly = Assembly.GetExecutingAssembly();
         var infrastructureAssembly = Assembly.Load("RentalCar.Infrastructure");
+
+        builder.RegisterType<ListingReliabilityEngine>()
+            .AsSelf()
+            .InstancePerLifetimeScope();
 
         builder.RegisterAssemblyTypes(applicationAssembly)
             .AsImplementedInterfaces()
