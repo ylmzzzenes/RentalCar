@@ -1,7 +1,9 @@
+@using RentalCar.Domain.Enums
+@using VehicleDriveType = RentalCar.Domain.Enums.DriveType
 @model RentalCar.Domain.Entities.Car
 
 @{
-    ViewData["Title"] = "Ilan Guncelle";
+    ViewData["Title"] = "İlan güncelle";
 }
 
 <div class="auth-card" style="max-width:840px;">
@@ -14,33 +16,91 @@
         }
         <div class="row g-3">
             <div class="col-md-6">
-                <label asp-for="Brand" class="form-label">Marka</label>
-                <input asp-for="Brand" class="form-control" />
+                <label asp-for="CatalogBrand" class="form-label">Marka</label>
+                <input asp-for="CatalogBrand" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Series" class="form-label">Seri</label>
+                <input asp-for="Series" class="form-control" />
             </div>
             <div class="col-md-6">
                 <label asp-for="Model" class="form-label">Model</label>
                 <input asp-for="Model" class="form-control" />
             </div>
             <div class="col-md-6">
-                <label asp-for="ModelYear" class="form-label">Yil</label>
+                <label asp-for="ModelYear" class="form-label">Yıl</label>
                 <input asp-for="ModelYear" type="number" min="1950" max="2100" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="OdometerKm" class="form-label">Kilometre</label>
+                <input asp-for="OdometerKm" type="number" min="0" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ListedPrice" class="form-label">Fiyat</label>
+                <input asp-for="ListedPrice" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Transmission" class="form-label">Vites tipi</label>
+                <select asp-for="Transmission" class="form-select" asp-items="FlagsEnumSelectList.For<Gear>()"></select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="FuelType" class="form-label">Yakıt tipi</label>
+                <select asp-for="FuelType" class="form-select" asp-items="FlagsEnumSelectList.For<FuelType>()"></select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EngineDisplacementLiters" class="form-label">Motor hacmi (L)</label>
+                <input asp-for="EngineDisplacementLiters" type="number" step="0.1" min="0" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EnginePowerHp" class="form-label">Motor gücü (bg)</label>
+                <input asp-for="EnginePowerHp" type="number" min="0" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Drivetrain" class="form-label">Çekiş</label>
+                <select asp-for="Drivetrain" class="form-select" asp-items="FlagsEnumSelectList.For<VehicleDriveType>()"></select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="FuelTankLiters" class="form-label">Yakıt deposu (L)</label>
+                <input asp-for="FuelTankLiters" type="number" min="0" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="BodyType" class="form-label">Kasa tipi</label>
+                <select asp-for="BodyType" class="form-select" asp-items="FlagsEnumSelectList.For<BodyType>()"></select>
             </div>
             <div class="col-md-6">
                 <label asp-for="Color" class="form-label">Renk</label>
                 <input asp-for="Color" class="form-control" />
             </div>
             <div class="col-md-6">
+                <label asp-for="VehicleCondition" class="form-label">Araç durumu</label>
+                <select asp-for="VehicleCondition" class="form-select" asp-items="Html.GetEnumSelectList<VehicleCondition>()"></select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="BodyWorkNotes" class="form-label">Boya — değişen</label>
+                <input asp-for="BodyWorkNotes" class="form-control" />
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <div class="form-check">
+                    <input asp-for="TradeInAccepted" class="form-check-input" />
+                    <label asp-for="TradeInAccepted" class="form-check-label">Takasa uygun</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="SellerType" class="form-label">Kimden</label>
+                <select asp-for="SellerType" class="form-select" asp-items="Html.GetEnumSelectList<ListingSellerType>()"></select>
+            </div>
+            <div class="col-md-6">
                 <label asp-for="Plate" class="form-label">Plaka</label>
                 <input asp-for="Plate" class="form-control" />
             </div>
             <div class="col-md-6">
-                <label asp-for="ListedPrice" class="form-label">Fiyat</label>
-                <input asp-for="ListedPrice" class="form-control" />
+                <label asp-for="Brand" class="form-label">Marka (liste)</label>
+                <input asp-for="Brand" class="form-control" />
             </div>
         </div>
         <div class="d-flex gap-2 mt-4">
-            <button type="submit" class="btn btn-primary-gradient">Guncelle</button>
-            <a asp-action="List" class="btn btn-outline-light">Iptal</a>
+            <button type="submit" class="btn btn-primary-gradient">Güncelle</button>
+            <a asp-action="List" class="btn btn-outline-light">İptal</a>
         </div>
     </form>
 </div>

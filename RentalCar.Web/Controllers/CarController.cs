@@ -1,41 +1,44 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using RentalCar.Application.Dtos.AI;
 using RentalCar.Domain.Entities;
 using RentalCar.Domain.Enums;
-using RentalCar.Infrastructure.AI.Services;
-using RentalCar.Infrastructure.Persistence.Context;
 using RentalCar.ViewModels;
-using RentalCar.Web.Models.Requests;
 using System.Security.Claims;
-using VehicleDriveType = RentalCar.Domain.Enums.DriveType;
-using System.Xml.Linq;
 using RentalCar.Infrastructure.Services.Cars;
 using RentalCar.Application.Abstractions.Services.Cars;
+using RentalCar.Application.Contracts.Cars;
+using RentalCar.Web.Models.Requests;
+using Microsoft.AspNetCore.Hosting;
 
 namespace RentalCar.Controllers;
 
 public class CarController : Controller
 {
     private readonly CarServices _carsServices;
-    private readonly PricingApiClient _pricing;
-    private readonly DescriptionService _descriptionService;
-    private readonly UserManager<AppUser> _userManager;
     public readonly ICarInteractionService _carInteractionService;
+    private readonly ICarAppService _carAppService;
+    private readonly ICarListingReliabilityService _listingReliabilityService;
+    private readonly ICarListingInsightService _listingInsightService;
+    private readonly IWebHostEnvironment _environment;
 
-    public CarController(CarServices carServices, PricingApiClient pricing, DescriptionService descriptionService, RentalCarContext context, UserManager<AppUser> userManager, ICarInteractionService carInteractionService)
+    public CarController(
+        CarServices carServices,
+        ICarInteractionService carInteractionService,
+        ICarAppService carAppService,
+        ICarListingReliabilityService listingReliabilityService,
+        ICarListingInsightService listingInsightService,
+        IWebHostEnvironment environment)
     {
         _carsServices = carServices;
-        _pricing = pricing;
-        _descriptionService = descriptionService;
-        _userManager = userManager;
         _carInteractionService = carInteractionService;
+        _carAppService = carAppService;
+        _listingReliabilityService = listingReliabilityService;
+        _listingInsightService = listingInsightService;
+        _environment = environment;
     }
 
-    [Authorize(Roles = "Admin")]
-    public IActionResult Index() { return View(); }
+    [Authorize]
+    public IActionResult Index() => View(CreateCarFormDefaults.Create());
 
     [HttpGet]
     public IActionResult Get(int id)
@@ -44,202 +47,87 @@ public class CarController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create(CreateCar request, List<int> SelectedSecurity, List<int> SelectedInternal, List<int> SelectedExternal, List<int> SelectedBodyType, List<int> SelectedFuelType, List<int> SelectedGear, List<int> SelectedDriveType, CancellationToken cancellationToken = default)
+    [Authorize]
+    public async Task<IActionResult> Create([FromForm] CreateCar request)
     {
-        Car newCar = new Car();
-        var fileNames = new List<string>();
+        if (!ModelState.IsValid)
+            return View("Index", request);
 
-        if (request.PhotoUploads != null && request.PhotoUploads.Any())
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Challenge();
+
+        var fileNames = await SaveCarImagesAsync(request.PhotoUploads, HttpContext.RequestAborted);
+        var prepareResult = await _carAppService.PrepareCarForCreateAsync(new CreateCarCommand
         {
-            foreach (var file in request.PhotoUploads)
+            CatalogBrand = request.CatalogBrand,
+            Series = request.Series,
+            Model = request.Model,
+            ModelYear = request.ModelYear,
+            OdometerKm = request.OdometerKm,
+            ListedPrice = request.ListedPrice ?? 0,
+            FuelType = request.FuelType,
+            Transmission = request.Transmission,
+            EngineDisplacementLiters = request.EngineDisplacementLiters,
+            EnginePowerHp = request.EnginePowerHp,
+            Drivetrain = request.Drivetrain,
+            FuelTankLiters = request.FuelTankLiters,
+            ListingBodyType = request.ListingBodyType,
+            Color = request.Color,
+            VehicleCondition = request.VehicleCondition,
+            BodyWorkNotes = request.BodyWorkNotes,
+            TradeInAccepted = request.TradeInAccepted,
+            SellerType = request.SellerType,
+            ImageUrls = fileNames
+        }, HttpContext.RequestAborted);
+
+        if (!prepareResult.Success)
+        {
+            var msg = prepareResult.Message ?? "Araç oluşturulamadı.";
+            var chunks = msg.Split(new[] { ". " }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var chunk in chunks)
             {
-                var extension = Path.GetExtension(file.FileName);
-                var newFileName = Guid.NewGuid() + extension;
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images/Upload/", newFileName);
-                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-
-                using var stream = new FileStream(path, FileMode.Create);
-                await file.CopyToAsync(stream);
-
-                fileNames.Add(newFileName);
+                var t = chunk.Trim();
+                if (t.Length == 0) continue;
+                ModelState.AddModelError(string.Empty, t.EndsWith('.') ? t : t + ".");
             }
+
+            if (ModelState.ErrorCount == 0)
+                ModelState.AddModelError(string.Empty, msg);
+
+            return View("Index", request);
         }
 
-        newCar.ImageUrls = fileNames;
-
-        var x = DateTime.Now;
-
-        newCar.Model = request.Model;
-        newCar.ModelYear = request.ModelYear;
-        newCar.Color = request.Color;
-
-        newCar.ModelRaw = request.ModelRaw;
-        newCar.CatalogBrand = request.CatalogBrand;
-        newCar.CatalogModelName = request.CatalogModelName;
-        newCar.TrimPackage = request.TrimPackage;
-        newCar.EngineCode = request.EngineCode;
-        newCar.TransmissionCode = request.TransmissionCode;
-
-        newCar.OdometerKm = request.OdometerKm;
-        newCar.TaxAmount = request.TaxAmount;
-        newCar.FuelConsumptionLPer100Km = request.FuelConsumptionLPer100Km;
-        newCar.EngineDisplacementLiters = request.EngineDisplacementLiters;
-        newCar.ListedPrice = request.ListedPrice;
-        newCar.City = request.City;
-        newCar.TrimLevelLabel = request.TrimLevelLabel;
-        newCar.HasAccidentRecord = request.HasAccidentRecord;
-        newCar.HasServiceHistory = request.HasServiceHistory;
-        newCar.EnginePowerHp = request.EnginePowerHp;
-        newCar.TorqueNm = request.TorqueNm;
-        newCar.PreviousOwnerCount = request.PreviousOwnerCount;
-        newCar.BodyStyleLabel = request.BodyStyleLabel;
-        newCar.BodyWorkNotes = request.BodyWorkNotes;
-
-        newCar.Security = (SelectedSecurity != null && SelectedSecurity.Any())
-            ? SelectedSecurity.Aggregate(Security.None, (acc, val) => acc | (Security)val)
-            : Security.None;
-
-        newCar.InternalEquipment = (SelectedInternal != null && SelectedInternal.Any())
-            ? SelectedInternal.Aggregate(InternalEquipment.None, (acc, val) => acc | (InternalEquipment)val)
-            : InternalEquipment.None;
-
-        newCar.ExternalEquipment = (SelectedExternal != null && SelectedExternal.Any())
-            ? SelectedExternal.Aggregate(ExternalEquipment.None, (acc, val) => acc | (ExternalEquipment)val)
-            : ExternalEquipment.None;
-
-        newCar.BodyType = (SelectedBodyType != null && SelectedBodyType.Any())
-            ? SelectedBodyType.Aggregate(BodyType.None, (acc, val) => acc | (BodyType)val)
-            : BodyType.None;
-
-        newCar.FuelType = (SelectedFuelType != null && SelectedFuelType.Any())
-            ? SelectedFuelType.Aggregate(FuelType.None, (acc, val) => acc | (FuelType)val)
-            : FuelType.None;
-
-        newCar.Transmission = (SelectedGear != null && SelectedGear.Any())
-            ? SelectedGear.Aggregate(Gear.None, (acc, val) => acc | (Gear)val)
-            : Gear.None;
-
-        newCar.Drivetrain = (SelectedDriveType != null && SelectedDriveType.Any())
-            ? SelectedDriveType.Aggregate(VehicleDriveType.None, (acc, val) => acc | (VehicleDriveType)val)
-            : VehicleDriveType.None;
-
-        if (newCar.FuelType == FuelType.None && request.FuelType != FuelType.None)
-            newCar.FuelType = request.FuelType;
-        if (newCar.Transmission == Gear.None && request.Transmission != Gear.None)
-            newCar.Transmission = request.Transmission;
-        if (newCar.Drivetrain == VehicleDriveType.None && request.Drivetrain != VehicleDriveType.None)
-            newCar.Drivetrain = request.Drivetrain;
-
-        newCar.CreatedOn = x;
-        newCar.ModifiedOn = x;
-
-        try
-        {
-            var payload = MapCarToPredict(newCar);
-            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(payload));
-
-            var pred = await _pricing.PredictAsync(payload, cancellationToken);
-
-            var mid = pred.Mid ?? pred.Prediction;
-            if (mid == null)
-                throw new Exception("Python response içinde mid/prediction yok.");
-
-            var low = pred.Low ?? mid.Value;
-            var high = pred.High ?? mid.Value;
-
-            newCar.PredictedPriceMid = mid.Value;
-            newCar.PredictedPriceMin = low;
-            newCar.PredictedPriceMax = high;
-
-            if (newCar.ListedPrice == 0)
-                newCar.ListedPrice = newCar.PredictedPriceMid;
-
-            Dictionary<string, object?> dataDict = new Dictionary<string, object?>
-            {
-                ["model"] = newCar.Model,
-                ["marka"] = newCar.CatalogBrand,
-                ["model_adi"] = newCar.CatalogModelName,
-                ["paket"] = newCar.TrimPackage,
-                ["motor_kodu"] = newCar.EngineCode,
-                ["sanziman_kodu"] = newCar.TransmissionCode,
-                ["yil"] = newCar.ModelYear,
-                ["kilometre"] = newCar.OdometerKm,
-                ["yakitTuru"] = newCar.FuelType.ToString(),
-                ["vites"] = newCar.Transmission.ToString(),
-                ["cekis"] = newCar.Drivetrain.ToString(),
-                ["vergi"] = newCar.TaxAmount,
-                ["lt_100km"] = newCar.FuelConsumptionLPer100Km,
-                ["motorHacmi"] = newCar.EngineDisplacementLiters,
-                ["renk"] = newCar.Color,
-                ["sehir"] = newCar.City,
-                ["kasaTipi"] = newCar.BodyStyleLabel,
-                ["donanimSeviyesi"] = newCar.TrimLevelLabel,
-                ["hasarKaydi"] = newCar.HasAccidentRecord,
-                ["degisenBoyanan"] = newCar.BodyWorkNotes,
-                ["servisGecmisi"] = newCar.HasServiceHistory,
-                ["motorGuc_hp"] = newCar.EnginePowerHp,
-                ["tork_nm"] = newCar.TorqueNm,
-                ["sahipSayisi"] = newCar.PreviousOwnerCount,
-            };
-
-            var descReq = new DescribeRequestDto
-            {
-                data = dataDict,
-                predicted_mid = newCar.PredictedPriceMid,
-                predicted_low = newCar.PredictedPriceMin,
-                predicted_high = newCar.PredictedPriceMax
-            };
-
-            var desc = await _descriptionService.DescribeAsync(descReq, cancellationToken);
-
-            newCar.ShortDescription = desc.@short;
-            newCar.FullDescription = desc.@long;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-        }
-
-        await _carsServices.CreateAsync(newCar, cancellationToken);
+        var newCar = prepareResult.Data;
+        newCar.PostedByUserId = userId;
+        await _carsServices.CreateAsync(newCar);
+        var reliability = await _listingReliabilityService.CalculateAsync(newCar, HttpContext.RequestAborted);
+        TempData["CreateSuccess"] = "Arac ilani olusturuldu.";
+        TempData["CreateAiSummary"] =
+            $"AI Fiyat: {newCar.PredictedPriceMid:N0} TL | Güven skoru: {reliability.Score}/100 — {reliability.TrustLevelTr}";
         return RedirectToAction(nameof(Details), new { id = newCar.Id });
-    }
-
-    private static PredictRequestDto MapCarToPredict(Car car)
-    {
-        var yilInt = car.ModelYear ?? 0;
-
-        return new PredictRequestDto
-        {
-            marka = car.CatalogBrand ?? car.Brand ?? "Bilinmiyor",
-            model_adi = car.CatalogModelName ?? car.Model ?? "Bilinmiyor",
-            paket = car.TrimPackage ?? "Standard",
-            motor_kodu = car.EngineCode ?? "Bilinmiyor",
-            cekis = car.Drivetrain.ToString(),
-            sanziman_kodu = car.TransmissionCode ?? "Bilinmiyor",
-            vites = car.Transmission.ToString(),
-            yakitTuru = car.FuelType.ToString(),
-            renk = car.Color ?? "Bilinmiyor",
-            sehir = car.City,
-            kasaTipi = car.BodyStyleLabel,
-            donanimSeviyesi = car.TrimLevelLabel,
-            hasarKaydi = car.HasAccidentRecord,
-            degisenBoyanan = car.BodyWorkNotes,
-            servisGecmisi = car.HasServiceHistory,
-            motorGuc_hp = car.EnginePowerHp,
-            tork_nm = car.TorqueNm,
-            sahipSayisi = car.PreviousOwnerCount,
-            yil = yilInt,
-            kilometre = car.OdometerKm ?? 0,
-            vergi = car.TaxAmount ?? 0,
-            lt_100km = car.FuelConsumptionLPer100Km ?? 0.0,
-            motorHacmi = car.EngineDisplacementLiters ?? 0.0,
-        };
     }
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> List(string? brand, string? model, string? renk, FuelType? yakitTuru, Gear? vites, BodyType? bodyType, int? yil, string? searchString, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> List(
+        string? brand,
+        string? model,
+        string? renk,
+        string? city,
+        FuelType? yakitTuru,
+        Gear? vites,
+        BodyType? bodyType,
+        int? yil,
+        int? minYil,
+        int? maxYil,
+        int? minKm,
+        int? maxKm,
+        decimal? minFiyat,
+        decimal? maxFiyat,
+        string? searchString,
+        string? postedBy,
+        CancellationToken cancellationToken = default)
     {
         var all = await _carsServices.GetAllAsync(cancellationToken);
         if (all == null)
@@ -248,6 +136,9 @@ public class CarController : Controller
         var query = all.AsQueryable();
         if (!User.IsInRole("Admin"))
             query = query.Where(c => c.IsApproved);
+
+        if (!string.IsNullOrWhiteSpace(postedBy))
+            query = query.Where(c => c.PostedByUserId == postedBy);
 
         if (!string.IsNullOrWhiteSpace(searchString))
         {
@@ -273,6 +164,9 @@ public class CarController : Controller
         if (!string.IsNullOrWhiteSpace(renk))
             query = query.Where(c => c.Color != null && c.Color.Contains(renk, StringComparison.OrdinalIgnoreCase));
 
+        if (!string.IsNullOrWhiteSpace(city))
+            query = query.Where(c => c.City != null && c.City.Contains(city, StringComparison.OrdinalIgnoreCase));
+
         if (yakitTuru != null)
             query = query.Where(c => c.FuelType == yakitTuru);
 
@@ -285,7 +179,68 @@ public class CarController : Controller
         if (yil != null)
             query = query.Where(c => c.ModelYear == yil);
 
-        return View(query.ToList());
+        if (minYil.HasValue)
+            query = query.Where(c => c.ModelYear.HasValue && c.ModelYear.Value >= minYil.Value);
+
+        if (maxYil.HasValue)
+            query = query.Where(c => c.ModelYear.HasValue && c.ModelYear.Value <= maxYil.Value);
+
+        if (minKm.HasValue)
+            query = query.Where(c => c.OdometerKm.HasValue && c.OdometerKm.Value >= minKm.Value);
+
+        if (maxKm.HasValue)
+            query = query.Where(c => c.OdometerKm.HasValue && c.OdometerKm.Value <= maxKm.Value);
+
+        if (minFiyat.HasValue)
+            query = query.Where(c => c.ListedPrice.HasValue && c.ListedPrice.Value >= minFiyat.Value);
+
+        if (maxFiyat.HasValue)
+            query = query.Where(c => c.ListedPrice.HasValue && c.ListedPrice.Value <= maxFiyat.Value);
+
+        var list = query
+            .OrderByDescending(c => c.CreatedOn)
+            .ToList();
+        var reliability = await _listingReliabilityService.CalculateBatchAsync(list, cancellationToken);
+
+        var criteriaSummary =
+            $"marka:{brand ?? "-"}, model:{model ?? "-"}, renk:{renk ?? "-"}, sehir:{city ?? "-"}, yakit:{yakitTuru?.ToString() ?? "-"}, vites:{vites?.ToString() ?? "-"}, kasa:{bodyType?.ToString() ?? "-"}, yil:{yil?.ToString() ?? "-"}, minYil:{minYil?.ToString() ?? "-"}, maxYil:{maxYil?.ToString() ?? "-"}, minKm:{minKm?.ToString() ?? "-"}, maxKm:{maxKm?.ToString() ?? "-"}, minFiyat:{minFiyat?.ToString() ?? "-"}, maxFiyat:{maxFiyat?.ToString() ?? "-"}, arama:{searchString ?? "-"}";
+        var hasFilterCriteria =
+            !string.IsNullOrWhiteSpace(searchString) ||
+            !string.IsNullOrWhiteSpace(brand) ||
+            !string.IsNullOrWhiteSpace(model) ||
+            !string.IsNullOrWhiteSpace(renk) ||
+            !string.IsNullOrWhiteSpace(city) ||
+            yakitTuru.HasValue || vites.HasValue || bodyType.HasValue ||
+            yil.HasValue || minYil.HasValue || maxYil.HasValue ||
+            minKm.HasValue || maxKm.HasValue ||
+            minFiyat.HasValue || maxFiyat.HasValue;
+
+        var recommendationCandidates = all
+            .Where(c => User.IsInRole("Admin") || c.IsApproved)
+            .Where(c => list.All(x => x.Id != c.Id))
+            .ToList();
+        ViewBag.RecommendedCars = hasFilterCriteria
+            ? await _carInteractionService.RecommendByCriteriaAsync(recommendationCandidates, criteriaSummary, maxCount: 6, cancellationToken)
+            : new List<Car>();
+
+        ViewBag.Brand = brand;
+        ViewBag.Model = model;
+        ViewBag.Renk = renk;
+        ViewBag.City = city;
+        ViewBag.YakitTuru = yakitTuru?.ToString();
+        ViewBag.Vites = vites?.ToString();
+        ViewBag.BodyType = bodyType?.ToString();
+        ViewBag.Yil = yil;
+        ViewBag.MinYil = minYil;
+        ViewBag.MaxYil = maxYil;
+        ViewBag.MinKm = minKm;
+        ViewBag.MaxKm = maxKm;
+        ViewBag.MinFiyat = minFiyat;
+        ViewBag.MaxFiyat = maxFiyat;
+        ViewBag.SearchString = searchString;
+        ViewBag.PostedBy = postedBy;
+        ViewBag.ReliabilityScores = reliability;
+        return View(list);
     }
 
     [HttpGet]
@@ -302,10 +257,16 @@ public class CarController : Controller
             cancellationToken);
 
         if (result == null) return NotFound();
+        var reliability = await _listingReliabilityService.CalculateAsync(result.Car, cancellationToken);
+        var insights = await _listingInsightService.GetInsightsAsync(id, userId, cancellationToken);
 
         var model = new CarDetailsViewModel
         {
             Car = result.Car,
+            Seller = result.Seller,
+            SimilarCars = result.SimilarCars,
+            ListingInsights = insights,
+            RecommendedCars = result.RecommendedCars,
             Comments = result.Comments.Select(x => new CarComment
             {
                 Id = x.Id,
@@ -316,7 +277,12 @@ public class CarController : Controller
             AverageRating = result.AverageRating,
             RatingCount = result.RatingCount,
             CurrentUserRating = result.CurrentUserRating,
-            IsFavorite = result.IsFavorite
+            IsFavorite = result.IsFavorite,
+            ReliabilityScore = reliability.Score,
+            ReliabilityLabel = reliability.Label,
+            ReliabilityTrustLevelTr = reliability.TrustLevelTr,
+            ReliabilityExplanation = reliability.UserExplanation,
+            ReliabilityFactors = isAdmin ? reliability.Factors : null
         };
 
         return View(model);
@@ -384,13 +350,42 @@ public class CarController : Controller
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Edit(Car updateCar, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Edit(Car posted, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid)
-            return View(updateCar);
+            return View(posted);
 
-        updateCar.ModifiedOn = DateTime.Now;
-        await _carsServices.UpdateAsync(updateCar, cancellationToken);
+        var existing = await _carsServices.GetByIdAsync(posted.Id, cancellationToken);
+        if (existing == null)
+            return NotFound();
+
+        existing.CatalogBrand = posted.CatalogBrand;
+        existing.Brand = posted.Brand;
+        existing.Series = posted.Series;
+        existing.Model = posted.Model;
+        existing.CatalogModelName = posted.Model;
+        existing.ModelYear = posted.ModelYear;
+        existing.OdometerKm = posted.OdometerKm;
+        existing.ListedPrice = posted.ListedPrice;
+        existing.Transmission = posted.Transmission;
+        existing.FuelType = posted.FuelType;
+        existing.EngineDisplacementLiters = posted.EngineDisplacementLiters;
+        existing.EnginePowerHp = posted.EnginePowerHp;
+        existing.Drivetrain = posted.Drivetrain;
+        existing.FuelTankLiters = posted.FuelTankLiters;
+        existing.BodyType = posted.BodyType;
+        existing.Color = posted.Color;
+        existing.VehicleCondition = posted.VehicleCondition;
+        existing.BodyWorkNotes = posted.BodyWorkNotes;
+        existing.TradeInAccepted = posted.TradeInAccepted;
+        existing.SellerType = posted.SellerType;
+        if (!string.IsNullOrWhiteSpace(posted.PostedByUserId))
+            existing.PostedByUserId = posted.PostedByUserId;
+        existing.Plate = posted.Plate;
+        existing.ImageUrls = posted.ImageUrls;
+        existing.ModifiedOn = DateTime.Now;
+
+        await _carsServices.UpdateAsync(existing, cancellationToken);
 
         return RedirectToAction(nameof(List));
     }
@@ -411,5 +406,31 @@ public class CarController : Controller
         var success = await _carsServices.DeleteAsync(id, cancellationToken);
         if (!success) return NotFound();
         return RedirectToAction(nameof(List));
+    }
+
+    private async Task<List<string>> SaveCarImagesAsync(IEnumerable<IFormFile>? files, CancellationToken cancellationToken)
+    {
+        var stored = new List<string>();
+        if (files is null)
+            return stored;
+
+        var targetFolder = Path.Combine(_environment.WebRootPath, "Images", "Upload");
+        Directory.CreateDirectory(targetFolder);
+
+        foreach (var file in files.Where(f => f is not null && f.Length > 0))
+        {
+            var ext = Path.GetExtension(file.FileName)?.ToLowerInvariant();
+            if (ext is not (".jpg" or ".jpeg" or ".png" or ".webp"))
+                continue;
+
+            var fileName = $"{Guid.NewGuid():N}{ext}";
+            var fullPath = Path.Combine(targetFolder, fileName);
+
+            await using var stream = new FileStream(fullPath, FileMode.Create);
+            await file.CopyToAsync(stream, cancellationToken);
+            stored.Add(fileName);
+        }
+
+        return stored;
     }
 }

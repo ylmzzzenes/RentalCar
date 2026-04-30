@@ -1,12 +1,43 @@
 @model List<RentalCar.Domain.Entities.Car>
 @{
     ViewData["Title"] = "Favorilerim";
+    var ratings = ViewBag.Ratings as List<RentalCar.Domain.Entities.CarRating> ?? new();
+    var ratedCars = ViewBag.RatedCars as Dictionary<int, RentalCar.Domain.Entities.Car> ?? new();
+    var recommended = ViewBag.RecommendedCars as List<RentalCar.Domain.Entities.Car> ?? new();
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="mb-0">Favori Ilanlarim</h3>
     <a asp-controller="Car" asp-action="List" class="btn btn-outline-secondary btn-sm">Ilanlara Don</a>
 </div>
+
+@if (recommended.Count > 0)
+{
+    <div class="mb-4">
+        <h5 class="mb-3">Favorilerine Gore Onerilen Araclar</h5>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+            @foreach (var car in recommended)
+            {
+                var image = car.ImageUrls.FirstOrDefault();
+                <div class="col">
+                    <div class="card listing-card h-100 border-0 shadow-sm rounded-4">
+                        <img src="@(string.IsNullOrWhiteSpace(image) ? "https://via.placeholder.com/640x360?text=Arac+Gorseli" : (image.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? image : Url.Content($"~/Images/Upload/{image}")))"
+                             class="card-img-top"
+                             style="height:170px; object-fit:cover;" />
+                        <div class="card-body">
+                            <h6 class="fw-semibold">@(car.CatalogBrand ?? car.Brand) @car.Model</h6>
+                            <div class="small text-muted">@(car.ModelYear) - @car.Color</div>
+                            <div class="listing-price mt-2">@(car.ListedPrice.HasValue ? $"{car.ListedPrice.Value:N0} TL" : "Fiyat yok")</div>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-primary btn-sm w-100">Detay</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
 
 @if (!Model.Any())
 {
@@ -36,3 +67,40 @@ else
         }
     </div>
 }
+
+<div class="mt-5">
+    <h5 class="mb-3">Puanladigim Araclar</h5>
+    @if (!ratings.Any())
+    {
+        <div class="glass-alert p-3">Henüz puanlama yapmadiniz.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover bg-white rounded-3">
+                <thead>
+                    <tr>
+                        <th>Arac</th>
+                        <th>Puan</th>
+                        <th>Tarih</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var rating in ratings)
+                    {
+                        ratedCars.TryGetValue(rating.CarId, out var car);
+                        <tr>
+                            <td>@(car is null ? "-" : $"{car.CatalogBrand ?? car.Brand} {car.Model}")</td>
+                            <td><span class="badge bg-warning text-dark">@rating.Score / 5</span></td>
+                            <td>@rating.ModifiedOn.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>
+                                <a asp-controller="Car" asp-action="Details" asp-route-id="@rating.CarId" class="btn btn-outline-primary btn-sm">Ilan Detayi</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

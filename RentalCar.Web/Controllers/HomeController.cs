@@ -5,10 +5,8 @@ using System.Diagnostics;
 using RentalCar.Domain.Enums;
 using RentalCar.Infrastructure.Services.Cars;
 using RentalCar.Models;
-using Microsoft.AspNetCore.Mvc;
 using RentalCar.Application.Abstractions.Services.Cars;
 using RentalCar.Application.Contracts.Cars;
-using static Org.BouncyCastle.Asn1.Cmp.Challenge;
 
 namespace RentalCar.Controllers;
 
@@ -17,11 +15,16 @@ public class HomeController : Controller
 {
     private readonly CarServices _carsServices;
     private readonly ICarAppService _carAppService;
+    private readonly ICarListingReliabilityService _listingReliabilityService;
 
-    public HomeController(CarServices carServices, ICarAppService carAppService)
+    public HomeController(
+        CarServices carServices,
+        ICarAppService carAppService,
+        ICarListingReliabilityService listingReliabilityService)
     {
         _carsServices = carServices;
         _carAppService = carAppService;
+        _listingReliabilityService = listingReliabilityService;
     }
     [AllowAnonymous]
     [HttpGet]
@@ -176,6 +179,8 @@ public class HomeController : Controller
         if (!string.IsNullOrWhiteSpace(imageUrl))
             query = query.Where(c => c.ImageUrls.Any(img => img.Contains(imageUrl, StringComparison.OrdinalIgnoreCase)));
 
-        return View("~/Views/Car/List.cshtml", query.ToList());
+        var list = query.ToList();
+        ViewBag.ReliabilityScores = await _listingReliabilityService.CalculateBatchAsync(list, cancellationToken);
+        return View("~/Views/Car/List.cshtml", list);
     }
 }

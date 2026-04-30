@@ -1,4 +1,5 @@
 @model dynamic
+@using RentalCar.Domain.Extensions
 
 <style>
     .option-pill {
@@ -41,95 +42,13 @@
 
 
 <div class="option-group">
-    <h6>Yakıt Türü</h6>
-    <div class="pill-container">
-        @foreach (var item in Model.FuelType)
-        {
-            <label class="option-pill">
-                <input type="checkbox" name="SelectedFuelType" value="@((int)item)" />
-                @item
-            </label>
-        }
-    </div>
-</div>
-
-
-<div class="option-group">
-    <h6>Vites Türü</h6>
-    <div class="pill-container">
-        @foreach (var item in Model.Gear)
-        {
-            <label class="option-pill">
-                <input type="checkbox" name="SelectedGear" value="@((int)item)" />
-                @item
-            </label>
-        }
-    </div>
-</div>
-
-<div class="option-group">
     <h6>Kasa Tipi</h6>
     <div class="pill-container">
         @foreach (var item in Model.BodyType)
         {
             <label class="option-pill">
                 <input type="checkbox" name="SelectedBodyType" value="@((int)item)" />
-                @item
-            </label>
-        }
-    </div>
-</div>
-
-<div class="option-group">
-    <h6>Cekis Tipi</h6>
-    <div class="pill-container">
-        @foreach (var item in Model.DriveType)
-        {
-            <label class="option-pill">
-                <input type="checkbox" name="SelectedDriveType" value="@((int)item)" />
-                @item
-            </label>
-        }
-    </div>
-</div>
-
-
-<div class="option-group">
-    <h6>Güvenlik Özellikleri</h6>
-    <div class="pill-container">
-        @foreach (var item in Model.Security)
-        {
-            <label class="option-pill">
-                <input type="checkbox" name="SelectedSecurity" value="@((int)item)" />
-                @item
-            </label>
-        }
-    </div>
-</div>
-
-
-<div class="option-group">
-    <h6>İç Donanım</h6>
-    <div class="pill-container">
-        @foreach (var item in Model.InternalEquipment)
-        {
-            <label class="option-pill">
-                <input type="checkbox" name="SelectedInternal" value="@((int)item)" />
-                @item
-            </label>
-        }
-    </div>
-</div>
-
-
-<div class="option-group">
-    <h6>Dış Donanım</h6>
-    <div class="pill-container">
-        @foreach (var item in Model.ExternalEquipment)
-        {
-            <label class="option-pill">
-                <input type="checkbox" name="SelectedExternal" value="@((int)item)" />
-                @item
+                @(((Enum)(object)item).GetDisplayName())
             </label>
         }
     </div>

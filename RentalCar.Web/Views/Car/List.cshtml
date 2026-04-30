@@ -1,6 +1,10 @@
 @using RentalCar.Domain.Entities
 @using RentalCar.Domain.Enums
 @model List<RentalCar.Domain.Entities.Car>
+@{
+    var reliabilityScores = ViewBag.ReliabilityScores as IDictionary<int, RentalCar.Application.Contracts.Cars.ListingReliabilityResult>;
+    var recommendedCars = ViewBag.RecommendedCars as List<RentalCar.Domain.Entities.Car> ?? new();
+}
 
 <div class="row">
   
@@ -9,35 +13,47 @@
             <h5 class="fw-bold mb-4 text-secondary text-center">🔍 Araç Filtrele</h5>
 
             <form method="get" asp-controller="Car" asp-action="List" class="needs-validation" novalidate>
-                <input type="text" name="brand" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Marka" />
-                <input type="text" name="model" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Model" />
-                <input type="text" name="renk" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Renk" />
+                @if (ViewBag.PostedBy is string pb && !string.IsNullOrWhiteSpace(pb))
+                {
+                    <input type="hidden" name="postedBy" value="@pb" />
+                }
+                <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Genel arama" />
+                <input type="text" name="brand" value="@ViewBag.Brand" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Marka" />
+                <input type="text" name="model" value="@ViewBag.Model" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Model" />
+                <input type="text" name="renk" value="@ViewBag.Renk" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Renk" />
+                <input type="text" name="city" value="@ViewBag.City" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Şehir" />
 
                 <select name="yakitTuru" class="form-select form-select-sm mb-3 shadow-sm">
                     <option value="">Yakıt Türü</option>
-                    @foreach (var fuel in Enum.GetValues(typeof(FuelType)))
+                    @foreach (var fuel in Enum.GetValues(typeof(FuelType)).Cast<FuelType>())
                     {
-                        <option value="@fuel">@fuel</option>
+                        <option value="@fuel" selected="@(string.Equals(ViewBag.YakitTuru as string, fuel.ToString(), StringComparison.OrdinalIgnoreCase))">@fuel.GetDisplayName()</option>
                     }
                 </select>
 
                 <select name="vites" class="form-select form-select-sm mb-3 shadow-sm">
                     <option value="">Vites Türü</option>
-                    @foreach (var g in Enum.GetValues(typeof(Gear)))
+                    @foreach (var g in Enum.GetValues(typeof(Gear)).Cast<Gear>())
                     {
-                        <option value="@g">@g</option>
+                        <option value="@g" selected="@(string.Equals(ViewBag.Vites as string, g.ToString(), StringComparison.OrdinalIgnoreCase))">@g.GetDisplayName()</option>
                     }
                 </select>
 
                 <select name="bodyType" class="form-select form-select-sm mb-3 shadow-sm">
                     <option value="">Kasa Tipi</option>
-                    @foreach (var body in Enum.GetValues(typeof(BodyType)))
+                    @foreach (var body in Enum.GetValues(typeof(BodyType)).Cast<BodyType>())
                     {
-                        <option value="@body">@body</option>
+                        <option value="@body" selected="@(string.Equals(ViewBag.BodyType as string, body.ToString(), StringComparison.OrdinalIgnoreCase))">@body.GetDisplayName()</option>
                     }
                 </select>
 
-                <input type="number" name="yil" class="form-control form-control-sm mb-4 shadow-sm" placeholder="Yıl" />
+                <input type="number" name="yil" value="@ViewBag.Yil" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Yıl (tam eşleşme)" />
+                <input type="number" name="minYil" value="@ViewBag.MinYil" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Min yıl" />
+                <input type="number" name="maxYil" value="@ViewBag.MaxYil" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Max yıl" />
+                <input type="number" name="minKm" value="@ViewBag.MinKm" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Min km" />
+                <input type="number" name="maxKm" value="@ViewBag.MaxKm" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Max km" />
+                <input type="number" step="1000" name="minFiyat" value="@ViewBag.MinFiyat" class="form-control form-control-sm mb-3 shadow-sm" placeholder="Min fiyat" />
+                <input type="number" step="1000" name="maxFiyat" value="@ViewBag.MaxFiyat" class="form-control form-control-sm mb-4 shadow-sm" placeholder="Max fiyat" />
 
                 <button class="btn btn-warning w-100 fw-semibold shadow-sm btn-sm">Filtrele</button>
             </form>
@@ -47,6 +63,37 @@
 
 
     <div class="col-md-9">
+        @if (ViewBag.PostedBy is string sellerId && !string.IsNullOrWhiteSpace(sellerId))
+        {
+            <div class="alert glass-alert border-0 shadow-sm mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <span><strong>Satıcı filtresi:</strong> Bu üyenin onaylı ilanları listeleniyor.</span>
+                <a asp-controller="Car" asp-action="List" class="btn btn-sm btn-outline-light">Filtreyi kaldır</a>
+            </div>
+        }
+        @if (recommendedCars.Count > 0)
+        {
+            <div class="alert alert-info border-0 shadow-sm py-2 mb-3">
+                <strong>LLM Önerileri:</strong> Filtre kriterlerine göre ek önerilen araçlar aşağıda.
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 g-3 mb-4">
+                @foreach (var suggested in recommendedCars)
+                {
+                    <div class="col">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-semibold">@(suggested.CatalogBrand ?? suggested.Brand) @suggested.Model</div>
+                                        <small class="text-muted">@(suggested.ModelYear?.ToString() ?? "-") | @(suggested.ListedPrice?.ToString("N0") ?? "0") TL</small>
+                                    </div>
+                                    <a asp-controller="Car" asp-action="Details" asp-route-id="@suggested.Id" class="btn btn-outline-primary btn-sm">İncele</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
         @if (Model != null && Model.Any())
         {
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
@@ -92,6 +139,18 @@
                                 <div class="listing-price mb-2">
                                     @(car.ListedPrice.HasValue ? $"{car.ListedPrice.Value:N0} TL" : "Fiyat bilgisi yok")
                                 </div>
+                                @if (reliabilityScores is not null && reliabilityScores.TryGetValue(car.Id, out var trust))
+                                {
+                                    <div class="mb-2 small">
+                                        <span class="badge @(trust.Label == "High" ? "bg-success" : trust.Label == "Medium" ? "bg-warning text-dark" : "bg-danger")">
+                                            @trust.TrustLevelTr · @trust.Score/100
+                                        </span>
+                                        @if (!string.IsNullOrWhiteSpace(trust.UserExplanation))
+                                        {
+                                            <div class="text-muted mt-1" style="font-size: 0.78rem; line-height: 1.35;">@trust.UserExplanation</div>
+                                        }
+                                    </div>
+                                }
                                 <div class="d-grid gap-2">
                                     @if (User.IsInRole("Admin"))
                                     {
