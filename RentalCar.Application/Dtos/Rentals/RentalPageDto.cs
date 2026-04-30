@@ -29,4 +29,5 @@ public sealed class RentalPageDto
 
     public RentalType RentalType { get; set; }
     public int Duration { get; set; }
+    public DateTime StartDate { get; set; } = DateTime.Today;
 }

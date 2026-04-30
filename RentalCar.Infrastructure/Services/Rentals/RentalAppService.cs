@@ -2,6 +2,8 @@
 using RentalCar.Application.Dtos.Rentals;
 using RentalCar.Domain.Entities;
 using RentalCar.Domain.Enums;
+using RentalCar.Domain.Extensions;
+using RentalCar.Domain.Rules;
 
 namespace RentalCar.Infrastructure.Services.Rentals
 {
@@ -13,7 +15,7 @@ namespace RentalCar.Infrastructure.Services.Rentals
         {
             _rentalServices = rentalServices;
         }
-        public async Task<RentalResultDto> CreateRentalAsync(int carId, RentalType rentalType, int duration, CancellationToken cancellationToken = default)
+        public async Task<RentalResultDto> CreateRentalAsync(int carId, RentalType rentalType, decimal duration, DateTime startDate, string? userId = null, CancellationToken cancellationToken = default)
         {
             if (duration <= 0)
             {
@@ -21,6 +23,15 @@ namespace RentalCar.Infrastructure.Services.Rentals
                 {
                     Success = false,
                     ErrorMessage = "Kiralama süresi 0'dan büyük olmalıdır."
+                };
+            }
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return new RentalResultDto
+                {
+                    Success = false,
+                    ErrorMessage = "Kiralama için giriş yapmalısınız."
                 };
             }
 
@@ -34,12 +45,46 @@ namespace RentalCar.Infrastructure.Services.Rentals
                 };
             }
 
+            if (!car.IsApproved)
+            {
+                return new RentalResultDto
+                {
+                    Success = false,
+                    ErrorMessage = "Bu araç henüz onaylı değil."
+                };
+            }
+
+            var utcStart = DateTime.SpecifyKind(startDate.Date, DateTimeKind.Utc);
+            var computedEnd = RentalDateRules.ComputeEndUtc(utcStart, rentalType, duration);
+            var hasOverlap = await _rentalServices.HasOverlappingRentalAsync(carId, utcStart, computedEnd, cancellationToken);
+            if (hasOverlap)
+            {
+                return new RentalResultDto
+                {
+                    Success = false,
+                    ErrorMessage = "Secilen tarih araliginda bu arac zaten kiralanmis."
+                };
+            }
+
+            var total = RentalPricing.ComputeTotal(car, rentalType, duration);
+            if (total <= 0)
+            {
+                return new RentalResultDto
+                {
+                    Success = false,
+                    ErrorMessage = "Bu araç için kiralama fiyatı tanımlı değil. Lütfen günlük / ilan fiyatını kontrol edin."
+                };
+            }
+
             var rental = new Rental
             {
                 CarId = carId,
+                UserId = userId,
                 RentalType = rentalType,
                 Duration = duration,
-                StartDate = DateTime.UtcNow,
+                TotalPrice = total,
+                StartDate = utcStart,
+                Status = RentalStatus.Confirmed,
                 CreatedOn = DateTime.UtcNow,
                 ModifiedOn = DateTime.UtcNow
             };
@@ -68,9 +113,9 @@ namespace RentalCar.Infrastructure.Services.Rentals
                 Plate = car.Plate ?? string.Empty,
                 ModelYear = car.ModelYear,
 
-                FuelType = car.FuelType.ToString(),
-                Transmission = car.Transmission.ToString(),
-                BodyType = car.BodyType.ToString(),
+                FuelType = car.FuelType.GetDisplayName(),
+                Transmission = car.Transmission.GetDisplayName(),
+                BodyType = car.BodyType.GetDisplayName(),
 
                 Color = car.Color ?? string.Empty,
                 Security = car.Security.ToString(),
@@ -83,7 +128,8 @@ namespace RentalCar.Infrastructure.Services.Rentals
                 MonthlyPrice = car.MonthlyPrice,
 
                 RentalType = RentalType.Daily,
-                Duration = 1
+                Duration = 1,
+                StartDate = DateTime.Today
             };
         }
 

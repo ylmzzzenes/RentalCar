@@ -46,6 +46,29 @@ public class RentalServices
         await _rental.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<bool> HasOverlappingRentalAsync(int carId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    {
+        var rows = await _rental.Rentals
+            .AsNoTracking()
+            .Where(r =>
+                r.CarId == carId &&
+                r.Status != Domain.Enums.RentalStatus.Cancelled)
+            .Select(r => new { r.StartDate, r.RentalType, r.Duration })
+            .ToListAsync(cancellationToken);
+
+        foreach (var r in rows)
+        {
+            var rStart = r.StartDate.Kind == DateTimeKind.Utc
+                ? r.StartDate
+                : DateTime.SpecifyKind(r.StartDate, DateTimeKind.Utc);
+            var rEnd = RentalDateRules.ComputeEndUtc(rStart, r.RentalType, r.Duration);
+            if (startDate < rEnd && endDate > rStart)
+                return true;
+        }
+
+        return false;
+    }
+
     public async Task<bool> DeleteRentalAsync(int id, CancellationToken cancellationToken = default)
     {
         var entity = await _rental.Rentals.FindAsync(new object[] { id }, cancellationToken);
