@@ -1,0 +1,42 @@
+@model RentalCar.Application.Dtos.Purchases.PurchasePageDto
+@{
+    ViewData["Title"] = "Satın alma onayı";
+    string Img(string? u) => string.IsNullOrWhiteSpace(u) ? "https://via.placeholder.com/640x360?text=Arac" :
+        (u.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? u : Url.Content($"~/Images/Upload/{u}"));
+}
+
+<div class="container py-4" style="max-width:720px;">
+    <h3 class="fw-bold mb-3">Satın alma talebi</h3>
+    <p class="text-muted small">Teklifiniz kayıt altına alınır; satıcı onayı ve ödeme adımları bu prototipte manuel ilerler.</p>
+
+    <div class="card border-0 shadow rounded-4 mb-4">
+        @if (Model.ImageUrls.Count > 0)
+        {
+            <img src="@Img(Model.ImageUrls[0])" class="card-img-top rounded-top" alt="@Model.Brand" style="max-height:240px; object-fit:cover;" />
+        }
+        <div class="card-body">
+            <h5 class="card-title">@Model.Brand @Model.Model</h5>
+            <p class="mb-1"><strong>Yıl:</strong> @(Model.ModelYear?.ToString() ?? "-")</p>
+            <p class="mb-0"><strong>İlan fiyatı:</strong> @(Model.ListedPrice.HasValue ? $"{Model.ListedPrice.Value:N0} TL" : "Belirtilmedi")</p>
+        </div>
+    </div>
+
+    <form asp-action="Confirm" method="post" class="card border-0 shadow rounded-4 p-4">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="carId" value="@Model.CarId" />
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Teklif / kabul edilen fiyat (TL)</label>
+            <input type="number" name="agreedPrice" class="form-control" min="1" step="1" value="@(Model.ListedPrice?.ToString("0") ?? "")" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Not (isteğe bağlı)</label>
+            <textarea name="buyerNote" class="form-control" rows="3" maxlength="2000" placeholder="Görüşme tercihi, takas vb."></textarea>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Talebi gönder</button>
+            <a asp-controller="Car" asp-action="Details" asp-route-id="@Model.CarId" class="btn btn-outline-secondary">İlana dön</a>
+        </div>
+    </form>
+</div>
