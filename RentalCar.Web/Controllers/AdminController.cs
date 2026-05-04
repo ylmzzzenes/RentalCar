@@ -1,7 +1,10 @@
+using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RentalCar.Application.Abstractions.Services.Cars;
 using RentalCar.Domain.Entities;
 using RentalCar.Infrastructure.Persistence.Context;
 using RentalCar.ViewModels.Admin;
@@ -14,15 +17,18 @@ namespace RentalCar.Controllers
         private readonly RentalCarContext _context;
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<AppRole> _roleManager;
+        private readonly ICarCatalogImageSyncService _carCatalogImageSyncService;
 
         public AdminController(
             RentalCarContext context,
             UserManager<AppUser> userManager,
-            RoleManager<AppRole> roleManager)
+            RoleManager<AppRole> roleManager,
+            ICarCatalogImageSyncService carCatalogImageSyncService)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            _carCatalogImageSyncService = carCatalogImageSyncService;
         }
 
         public async Task<IActionResult> Dashboard()
@@ -38,6 +44,26 @@ namespace RentalCar.Controllers
             };
 
             return View(vm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportCarBrandModelsJson(CancellationToken cancellationToken)
+        {
+            var rows = await _carCatalogImageSyncService.GetBrandModelExportRowsAsync(cancellationToken);
+            var json = JsonSerializer.Serialize(rows, new JsonSerializerOptions { WriteIndented = true });
+            return File(Encoding.UTF8.GetBytes(json), "application/json", "car-brand-models.json");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SyncCatalogCarImages(bool replaceRemoteUrls, CancellationToken cancellationToken)
+        {
+            var result = await _carCatalogImageSyncService.DownloadAndAttachToCarsAsync(replaceRemoteUrls, cancellationToken);
+            TempData["AdminSuccess"] =
+                $"Katalog gorselleri: islenen {result.CarsProcessed}, guncellenen {result.CarsUpdated}, atlanan {result.CarsSkipped}, indirilen dosya {result.FilesDownloaded}.";
+            if (result.Errors.Count > 0)
+                TempData["AdminError"] = string.Join(" | ", result.Errors.Take(8));
+            return RedirectToAction(nameof(Dashboard));
         }
 
         public async Task<IActionResult> Users()

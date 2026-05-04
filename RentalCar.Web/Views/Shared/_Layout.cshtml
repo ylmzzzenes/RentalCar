@@ -24,9 +24,9 @@
                             <li class="nav-item"><a class="nav-link" asp-controller="Car" asp-action="List">Araçlar</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Favorites" asp-action="Index">Favoriler</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Ratings" asp-action="Index">Puanlamalar</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Car" asp-action="Index">Araç Ekle</a></li>
                             @if (User.IsInRole("Admin"))
                             {
-                                <li class="nav-item"><a class="nav-link" asp-controller="Car" asp-action="Index">Araç Ekle</a></li>
                                 <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Dashboard">Admin Paneli</a></li>
                             }
                             <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="About">Hakkımızda</a></li>

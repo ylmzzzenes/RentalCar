@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RentalCar.Application.Abstractions.Services.Rentals;
 using RentalCar.Web.ViewModels.Rentals;
 using RentalPageDto = RentalCar.Application.Dtos.Rentals.RentalPageDto;
+using System.Security.Claims;
 
 namespace RentalCar.Controllers;
 
@@ -47,6 +48,8 @@ public class RentalController : Controller
             model.Form.CarId,
             model.Form.RentalType,
             model.Form.Duration,
+            model.Form.StartDate,
+            User.FindFirstValue(ClaimTypes.NameIdentifier)!,
             cancellationToken);
 
         if (!result.Success)
@@ -68,7 +71,7 @@ public class RentalController : Controller
     public async Task<IActionResult> RentalResult(int id, CancellationToken cancellationToken = default)
     {
         var result = await _rentalAppService.GetRentalresultAsync(id, cancellationToken);
-        if (result == null || result.Rental == null)
+        if (result == null || result.Rental == null || result.Rental.Car == null)
             return NotFound();
 
         return View(result.Rental);
@@ -83,7 +86,8 @@ public class RentalController : Controller
             {
                 CarId = page.CarId,
                 RentalType = page.RentalType,
-                Duration = page.Duration
+                Duration = page.Duration,
+                StartDate = page.StartDate
             }
         };
     }

@@ -30,7 +30,7 @@
             }
             @if (!string.IsNullOrWhiteSpace(cover))
             {
-                <img src="~/Images/Upload/@cover" class="img-fluid rounded-3" style="max-height:220px; object-fit:cover;" />
+                <img src="@(cover.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? cover : Url.Content($"~/Images/Upload/{cover}"))" class="img-fluid rounded-3" style="max-height:220px; object-fit:cover;" />
             }
         </div>
     </div>

@@ -13,9 +13,9 @@
             <h4>@Model.Car.Brand @Model.Car.Model</h4>
             <p><strong>Plaka:</strong> @Model.Car.Plate</p>
             <p><strong>Yıl:</strong> @Model.Car.ModelYear</p>
-            <p><strong>Yakıt Türü:</strong> @Model.Car.FuelType</p>
-            <p><strong>Vites:</strong> @Model.Car.Transmission</p>
-            <p><strong>Kasa Tipi:</strong> @Model.Car.BodyType</p>
+            <p><strong>Yakıt Türü:</strong> @Model.Car.FuelType.GetDisplayName()</p>
+            <p><strong>Vites:</strong> @Model.Car.Transmission.GetDisplayName()</p>
+            <p><strong>Kasa Tipi:</strong> @Model.Car.BodyType.GetDisplayName()</p>
             <p><strong>Renk:</strong> @Model.Car.Color</p>
 
             <p><strong>Kiralama Tipi:</strong> @Model.RentalType</p>
@@ -44,7 +44,7 @@
             {
                 foreach (var img in Model.Car.ImageUrls.Where(x => !string.IsNullOrWhiteSpace(x)))
                 {
-                    <img src="~/Images/Upload/@img"
+                    <img src="@(img.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? img : Url.Content($"~/Images/Upload/{img}"))"
                          class="img-thumbnail m-2"
                          style="max-height: 200px; object-fit: cover;" />
                 }

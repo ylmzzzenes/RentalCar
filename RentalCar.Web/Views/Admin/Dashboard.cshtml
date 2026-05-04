@@ -3,6 +3,15 @@
     ViewData["Title"] = "Admin Paneli";
 }
 
+@if (TempData["AdminSuccess"] is string ok && !string.IsNullOrWhiteSpace(ok))
+{
+    <div class="alert alert-success">@ok</div>
+}
+@if (TempData["AdminError"] is string err && !string.IsNullOrWhiteSpace(err))
+{
+    <div class="alert alert-danger">@err</div>
+}
+
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
         <h2 class="mb-1">Yonetim Paneli</h2>
@@ -14,6 +23,29 @@
         <a asp-action="Comments" class="btn btn-outline-light">Yorumlar</a>
         <a asp-action="Ratings" class="btn btn-outline-light">Puanlar</a>
         <a asp-action="Favorites" class="btn btn-outline-light">Favoriler</a>
+    </div>
+</div>
+
+<div class="card border-secondary mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Katalog arac gorselleri</h5>
+        <p class="text-muted small mb-3">
+            Katalogda URL tanimli modeller icin gorseller indirilir ve ilan kaydina <strong>yerel dosya adi</strong> yazilir.
+            <strong>Dikkat:</strong> Ilanda hic gorsem yoksa ilk buton yeterli. AI/katalog sonrasi <code>http...</code> adresi kalmissa guncelleme icin <strong>ikinci butonu</strong> kullanin (yerel yuklenen dosyalar korunur).
+        </p>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <a asp-action="ExportCarBrandModelsJson" class="btn btn-outline-info btn-sm">Marka-model listesini indir (JSON)</a>
+            <form asp-action="SyncCatalogCarImages" method="post" class="d-inline-flex flex-wrap align-items-center gap-2">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="replaceRemoteUrls" value="false" />
+                <button type="submit" class="btn btn-primary btn-sm">Yalnizca bos gorselli ilanlar</button>
+            </form>
+            <form asp-action="SyncCatalogCarImages" method="post" class="d-inline-flex flex-wrap align-items-center gap-2" onsubmit="return confirm('http ile baslayan uzak gorsel adresleri yerel dosyayla degistirilecek. Elle yuklenen dosya adlari korunur. Devam mi?');">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="replaceRemoteUrls" value="true" />
+                <button type="submit" class="btn btn-warning btn-sm">Uzak http gorsellerini yerel dosyaya cevir</button>
+            </form>
+        </div>
     </div>
 </div>
 

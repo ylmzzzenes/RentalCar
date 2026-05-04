@@ -1,16 +1,21 @@
-@using RentalCar.Domain.Entities
 @using RentalCar.Domain.Enums
-@model RentalCar.Domain.Entities.Rental
+@model RentalCar.Web.ViewModels.Rentals.RentCarPageViewModel
 
+@if (Model.Car == null)
+{
+    <div class="alert alert-warning">Araç bilgisi yüklenemedi.</div>
+}
+else
+{
 <div class="card shadow-sm border-0 p-4 rounded-4">
     <div class="row g-4 align-items-start">
 
         <div class="col-md-5 text-center">
-            @if (Model.Car != null && Model.Car.ImageUrls.Count > 0)
+            @if (Model.Car.ImageUrls.Count > 0)
             {
                 foreach (var img in Model.Car.ImageUrls.Where(x => !string.IsNullOrWhiteSpace(x)))
                 {
-                    <img src="~/Images/Upload/@img"
+                    <img src="@(img.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? img : Url.Content($"~/Images/Upload/{img}"))"
                          class="img-thumbnail m-2"
                          alt="@Model.Car.Brand @Model.Car.Model"
                          style="max-height: 200px; object-fit: cover;" />
@@ -23,48 +28,56 @@
         </div>
 
         <div class="col-md-7">
-            <h3 class="fw-bold mb-3">@Model.Car?.Brand @Model.Car?.Model Kiralama</h3>
+            <h3 class="fw-bold mb-3">@Model.Car.Brand @Model.Car.Model Kiralama</h3>
 
             <div class="row">
-                <div class="col-6 mb-2"><strong>Plaka:</strong> @Model.Car?.Plate</div>
-                <div class="col-6 mb-2"><strong>Yıl:</strong> @Model.Car?.ModelYear</div>
-                <div class="col-6 mb-2"><strong>Yakıt Türü:</strong> @Model.Car?.FuelType</div>
-                <div class="col-6 mb-2"><strong>Vites:</strong> @Model.Car?.Transmission</div>
-                <div class="col-6 mb-2"><strong>Kasa Tipi:</strong> @Model.Car?.BodyType</div>
-                <div class="col-6 mb-2"><strong>Renk:</strong> @Model.Car?.Color</div>
+                <div class="col-6 mb-2"><strong>Plaka:</strong> @Model.Car.Plate</div>
+                <div class="col-6 mb-2"><strong>Yıl:</strong> @Model.Car.ModelYear</div>
+                <div class="col-6 mb-2"><strong>Yakıt Türü:</strong> @Model.Car.FuelType</div>
+                <div class="col-6 mb-2"><strong>Vites:</strong> @Model.Car.Transmission</div>
+                <div class="col-6 mb-2"><strong>Kasa Tipi:</strong> @Model.Car.BodyType</div>
+                <div class="col-6 mb-2"><strong>Renk:</strong> @Model.Car.Color</div>
             </div>
 
             <div class="mt-3">
                 <h6 class="fw-semibold text-secondary">Güvenlik Özellikleri</h6>
-                <p class="text-muted">@Model.Car?.Security</p>
+                <p class="text-muted">@Model.Car.Security</p>
 
                 <h6 class="fw-semibold text-secondary">İç Donanım</h6>
-                <p class="text-muted">@Model.Car?.InternalEquipment</p>
+                <p class="text-muted">@Model.Car.InternalEquipment</p>
 
                 <h6 class="fw-semibold text-secondary">Dış Donanım</h6>
-                <p class="text-muted">@Model.Car?.ExternalEquipment</p>
+                <p class="text-muted">@Model.Car.ExternalEquipment</p>
             </div>
 
             <div class="mt-4">
                 <h5 class="fw-bold">Aracı Kirala</h5>
 
                 <form asp-controller="Rental" asp-action="RentCar" method="post" class="mt-3">
-                    <input type="hidden" name="id" value="@Model.CarId" />
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Form.CarId" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
 
                     <div class="mb-3">
                         <label for="rentalType" class="form-label">Kiralama Türü</label>
-                        <select class="form-select" name="RentalType" required>
-                            <option value="">Seçiniz</option>
-                            <option value="1">Günlük</option>
-                            <option value="2">Haftalık</option>
-                            <option value="4">Aylık</option>
-                            <option value="8">Uzun Dönem</option>
+                        <select asp-for="Form.RentalType" class="form-select" required>
+                            <option value="@RentalType.Daily">Günlük</option>
+                            <option value="@RentalType.Weekly">Haftalık</option>
+                            <option value="@RentalType.Monthly">Aylık</option>
+                            <option value="@RentalType.LongTerm">Uzun Dönem</option>
                         </select>
                     </div>
 
                     <div class="mb-3">
-                        <label for="duration" class="form-label">Süre (Gün)</label>
-                        <input type="number" name="duration" class="form-control" min="1" required />
+                        <label for="duration" class="form-label">Süre (birim: günlük=gün, haftalık=hafta, aylık=ay, uzun dönem=yıl)</label>
+                        <input asp-for="Form.Duration" type="number" class="form-control" min="1" required />
+                        <span asp-validation-for="Form.Duration" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Başlangıç Tarihi</label>
+                        <input asp-for="Form.StartDate" type="date" class="form-control" required />
+                        <span asp-validation-for="Form.StartDate" class="text-danger small"></span>
                     </div>
 
                     <button type="submit" class="btn btn-primary-gradient">Kiralamayi Tamamla</button>
@@ -73,9 +86,13 @@
 
             <div class="mt-4">
                 <a asp-controller="Car" asp-action="List" class="btn btn-outline-secondary">← Geri Dön</a>
-                <a asp-controller="Car" asp-action="Edit" asp-route-id="@Model.CarId" class="btn btn-outline-primary ms-2">Güncelle</a>
-                <a asp-controller="Car" asp-action="Delete" asp-route-id="@Model.CarId" class="btn btn-outline-danger ms-2">Sil</a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Car" asp-action="Edit" asp-route-id="@Model.Car.CarId" class="btn btn-outline-primary ms-2">Güncelle</a>
+                    <a asp-controller="Car" asp-action="Delete" asp-route-id="@Model.Car.CarId" class="btn btn-outline-danger ms-2">Sil</a>
+                }
             </div>
         </div>
     </div>
 </div>
+}
