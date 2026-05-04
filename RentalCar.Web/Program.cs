@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using RentalCar.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using RentalCar.Application.Abstractions.Services;
+using RentalCar.Infrastructure.Services.Email;
 using RentalCar.Infrastructure.Services.Cars;
 using RentalCar.Infrastructure.Services.Rentals;
 using RentalCar.AI.Configuration;
@@ -16,6 +17,8 @@ using RentalCar.Application.Abstractions.Services.Cars;
 using RentalCar.Infrastructure.AI.Services;
 using System.Net.Http.Headers;
 using RentalCar.Infrastructure.Identity;
+using RentalCar.Infrastructure.Services.Purchases;
+using Serilog;
 
 namespace RentalCar
 {
@@ -23,13 +26,29 @@ namespace RentalCar
     {
         public static void Main(string[] args)
         {
+            var logDirectory = Path.Combine(AppContext.BaseDirectory, "logs");
+            Directory.CreateDirectory(logDirectory);
+
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.File(
+                    path: Path.Combine(logDirectory, "rentalcar-.log"),
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: 14)
+                .CreateLogger();
+
             var builder = WebApplication.CreateBuilder(args);
+            builder.Host.UseSerilog();
 
             // Autofac'i ana DI container olarak kullan
             builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
             builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
-            {
+            { 
                 containerBuilder.RegisterModule(new AutofacApplicationModule());
             });
 
@@ -78,6 +97,20 @@ namespace RentalCar
             // Uygulama servisleri
             builder.Services.AddScoped<CarServices>();
             builder.Services.AddScoped<RentalServices>();
+            builder.Services.AddScoped<PurchaseServices>();
+            builder.Services.AddScoped<IEmailSender>(_ =>
+            {
+                var host = builder.Configuration["EmailSender:Host"]
+                    ?? throw new InvalidOperationException("EmailSender:Host yapılandırılmamış.");
+                var userName = builder.Configuration["EmailSender:UserName"]
+                    ?? throw new InvalidOperationException("EmailSender:UserName yapılandırılmamış.");
+                var password = builder.Configuration["EmailSender:Password"]
+                    ?? throw new InvalidOperationException("EmailSender:Password yapılandırılmamış.");
+                var port = builder.Configuration.GetValue<int>("EmailSender:Port");
+                var enableSsl = builder.Configuration.GetValue<bool>("EmailSender:EnableSsl");
+
+                return new SmtpEmailSender(host, port, enableSsl, userName, password);
+            });
 
             // AI ayarları
             builder.Services.Configure<OpenAiOptions>(builder.Configuration.GetSection("OpenAI"));
@@ -102,6 +135,7 @@ namespace RentalCar
             builder.Services.AddScoped<IPricingService, PricingService>();
             builder.Services.AddScoped<IFaqService, FaqService>();
             builder.Services.AddScoped<ICarInteractionService, CarInteractionService>();
+            builder.Services.AddHttpClient(nameof(CarCatalogImageSyncService));
 
             var aiBaseUrl = builder.Configuration["AiApi:BaseUrl"] ?? "http://localhost:8000";
 
@@ -151,7 +185,14 @@ namespace RentalCar
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
-            app.Run();
+            try
+            {
+                app.Run();
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
     }
 }

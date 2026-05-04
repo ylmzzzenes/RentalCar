@@ -179,7 +179,7 @@ label {
 }
 
 .ai-chat-panel {
-    width: min(380px, 92vw);
+    width: min(620px, 96vw);
     background: rgba(7, 12, 30, 0.96);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 1rem;
@@ -197,7 +197,7 @@ label {
 
 .ai-chat-messages {
     padding: 0.9rem;
-    max-height: 270px;
+    max-height: 460px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -246,4 +246,204 @@ label {
 .ai-chat-input-wrap {
     padding: 0.9rem;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ——— Araç detay (ilan sayfası) ——— */
+.car-detail-page .object-fit-cover {
+    object-fit: cover;
+}
+
+.car-detail-gallery {
+    background: rgba(16, 22, 45, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.car-detail-gallery .thumb-img {
+    display: block;
+    height: 72px;
+    width: 112px;
+    object-fit: cover;
+}
+
+.car-detail-thumb {
+    opacity: 0.72;
+    transition: opacity 0.15s ease, box-shadow 0.15s ease;
+    outline: 2px solid transparent;
+    border-radius: 0.75rem;
+}
+
+.car-detail-thumb.is-active,
+.car-detail-thumb:hover {
+    opacity: 1;
+    outline-color: rgba(122, 131, 255, 0.85);
+}
+
+.car-detail-price {
+    font-size: clamp(1.75rem, 4vw, 2.35rem);
+    font-weight: 800;
+    color: #5ce3a2;
+    letter-spacing: -0.02em;
+}
+
+.car-detail-spec-card,
+.car-detail-seller-card {
+    background: rgba(16, 22, 45, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.car-detail-seller-card.sticky-lg-top {
+    top: 5.5rem;
+}
+
+.spec-tile {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 0.65rem;
+    padding: 0.55rem 0.65rem;
+    min-height: 100%;
+}
+
+.spec-label {
+    display: block;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #9aa6d8;
+    margin-bottom: 0.2rem;
+}
+
+.spec-value {
+    color: #f2f5ff;
+    font-weight: 600;
+    font-size: 0.88rem;
+}
+
+.seller-avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #596bff, #8d5bff);
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.car-detail-ai-panel {
+    background: rgba(20, 28, 58, 0.95);
+    border: 1px solid rgba(122, 131, 255, 0.22) !important;
+}
+
+.car-detail-ai-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #c8d2f5;
+}
+
+.car-detail-ai-body {
+    color: rgba(255, 255, 255, 0.94);
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+.car-detail-ai-summary {
+    color: #d2daf8;
+    line-height: 1.5;
+}
+
+.car-detail-ai-list {
+    color: rgba(230, 235, 255, 0.9);
+    line-height: 1.5;
+}
+
+/* Araç detay sayfası: Bootstrap text-muted koyu zeminde okunmuyor */
+.car-detail-page .text-muted {
+    color: #b0bddf !important;
+}
+
+.car-detail-muted-note {
+    color: #b8c6e8 !important;
+}
+
+.car-detail-description-wrap {
+    padding: 1.1rem 1.25rem;
+    border-radius: 0.85rem;
+    background: rgba(12, 18, 40, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.car-detail-description-lead {
+    color: #f4f6ff !important;
+    font-weight: 600;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+
+.car-detail-description-body {
+    color: #e8edff !important;
+    font-size: 0.98rem;
+    line-height: 1.65;
+    font-weight: 400;
+}
+
+.car-detail-empty-note {
+    color: #d0d8f5 !important;
+    line-height: 1.6;
+    padding: 0.85rem 1rem;
+    border-radius: 0.65rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px dashed rgba(255, 255, 255, 0.18);
+}
+
+.car-detail-comment-body {
+    color: #d4dcf5 !important;
+    line-height: 1.5;
+    margin-top: 0.35rem;
+}
+
+/* Koyu arka planda doğrulama / hata metinleri */
+.validation-summary-errors,
+.validation-summary-errors li,
+ul.validation-summary-errors {
+    color: #ffc8cf !important;
+}
+
+.field-validation-error,
+span.text-danger,
+.text-danger.small {
+    color: #ff9aad !important;
+}
+
+.validation-errors-alert {
+    background: rgba(220, 53, 69, 0.14);
+    border: 1px solid rgba(255, 130, 150, 0.45) !important;
+    color: #ffe4e8;
+}
+
+.validation-errors-alert ul {
+    margin-bottom: 0;
+    padding-left: 1.2rem;
+}
+
+.bg-gradient-ai {
+    background: linear-gradient(135deg, #6a6cff, #934cff);
+    color: #fff;
+}
+
+.car-detail-ai-price-hint {
+    background: rgba(92, 227, 162, 0.08);
+    border: 1px solid rgba(92, 227, 162, 0.25);
+}
+
+.car-detail-rec-card {
+    background: rgba(16, 22, 45, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+@media (max-width: 991.98px) {
+    .car-detail-seller-card.sticky-lg-top {
+        position: relative !important;
+        top: 0 !important;
+    }
 }

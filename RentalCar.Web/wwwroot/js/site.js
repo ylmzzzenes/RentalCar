@@ -68,7 +68,9 @@
     applyFilters?.addEventListener("click", function () {
         if (!latestFilters) return;
         const url = new URL(window.location.origin + "/Car/List");
-        if (latestFilters.city) url.searchParams.set("searchString", latestFilters.city);
+        const q = latestFilters.query || latestFilters.Query;
+        if (q) url.searchParams.set("searchString", q);
+        else if (latestFilters.city) url.searchParams.set("searchString", latestFilters.city);
         if (latestFilters.fuelType) url.searchParams.set("yakitTuru", latestFilters.fuelType);
         window.location.href = url.toString();
     });
