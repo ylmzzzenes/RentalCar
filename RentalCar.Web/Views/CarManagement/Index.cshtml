@@ -18,7 +18,7 @@
 
 <div class="container py-3">
     <h3 class="mb-3">Yeni Araç İlanı</h3>
-    <form id="createCarForm" asp-controller="Car" asp-action="Create" method="post" enctype="multipart/form-data" class="row g-3">
+    <form id="createCarForm" asp-controller="CarManagement" asp-action="Create" method="post" enctype="multipart/form-data" class="row g-3">
         <div asp-validation-summary="All" class="alert validation-errors-alert border-0 shadow-sm" role="alert"></div>
 
         <div class="col-md-4">
@@ -130,7 +130,7 @@
                 <span id="createSpinner" class="spinner-border spinner-border-sm me-2 d-none" role="status"></span>
                 Kaydet ve AI analizi üret
             </button>
-            <a asp-controller="Car" asp-action="List" class="btn btn-outline-secondary">Listeye dön</a>
+            <a asp-controller="CarBrowse" asp-action="List" class="btn btn-outline-secondary">Listeye dön</a>
         </div>
     </form>
 </div>

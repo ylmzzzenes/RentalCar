@@ -8,7 +8,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="mb-0">Favori Ilanlarim</h3>
-    <a asp-controller="Car" asp-action="List" class="btn btn-outline-secondary btn-sm">Ilanlara Don</a>
+    <a asp-controller="CarBrowse" asp-action="List" class="btn btn-outline-secondary btn-sm">Ilanlara Don</a>
 </div>
 
 @if (recommended.Count > 0)
@@ -30,7 +30,7 @@
                             <div class="listing-price mt-2">@(car.ListedPrice.HasValue ? $"{car.ListedPrice.Value:N0} TL" : "Fiyat yok")</div>
                         </div>
                         <div class="card-footer bg-white border-0">
-                            <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-primary btn-sm w-100">Detay</a>
+                            <a asp-controller="CarBrowse" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-primary btn-sm w-100">Detay</a>
                         </div>
                     </div>
                 </div>
@@ -60,7 +60,7 @@ else
                         <div class="listing-price mt-2">@(car.ListedPrice.HasValue ? $"{car.ListedPrice.Value:N0} TL" : "Fiyat yok")</div>
                     </div>
                     <div class="card-footer bg-white border-0">
-                        <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-primary btn-sm w-100">Detay</a>
+                        <a asp-controller="CarBrowse" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-primary btn-sm w-100">Detay</a>
                     </div>
                 </div>
             </div>
@@ -95,7 +95,7 @@ else
                             <td><span class="badge bg-warning text-dark">@rating.Score / 5</span></td>
                             <td>@rating.ModifiedOn.ToString("dd.MM.yyyy HH:mm")</td>
                             <td>
-                                <a asp-controller="Car" asp-action="Details" asp-route-id="@rating.CarId" class="btn btn-outline-primary btn-sm">Ilan Detayi</a>
+                                <a asp-controller="CarBrowse" asp-action="Details" asp-route-id="@rating.CarId" class="btn btn-outline-primary btn-sm">Ilan Detayi</a>
                             </td>
                         </tr>
                     }

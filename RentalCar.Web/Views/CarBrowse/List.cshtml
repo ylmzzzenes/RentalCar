@@ -12,7 +12,7 @@
         <div class="listing-filter-panel shadow-sm p-4">
             <h5 class="fw-bold mb-4 text-secondary text-center">🔍 Araç Filtrele</h5>
 
-            <form method="get" asp-controller="Car" asp-action="List" class="needs-validation" novalidate>
+            <form method="get" asp-controller="CarBrowse"" asp-controller="CarBrowse" asp-action="List" class="needs-validation" novalidate>
                 @if (ViewBag.PostedBy is string pb && !string.IsNullOrWhiteSpace(pb))
                 {
                     <input type="hidden" name="postedBy" value="@pb" />
@@ -67,7 +67,7 @@
         {
             <div class="alert glass-alert border-0 shadow-sm mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <span><strong>Satıcı filtresi:</strong> Bu üyenin onaylı ilanları listeleniyor.</span>
-                <a asp-controller="Car" asp-action="List" class="btn btn-sm btn-outline-light">Filtreyi kaldır</a>
+                <a asp-controller="CarBrowse" asp-action="List" class="btn btn-sm btn-outline-light">Filtreyi kaldır</a>
             </div>
         }
         @if (recommendedCars.Count > 0)
@@ -86,7 +86,7 @@
                                         <div class="fw-semibold">@(suggested.CatalogBrand ?? suggested.Brand) @suggested.Model</div>
                                         <small class="text-muted">@(suggested.ModelYear?.ToString() ?? "-") | @(suggested.ListedPrice?.ToString("N0") ?? "0") TL</small>
                                     </div>
-                                    <a asp-controller="Car" asp-action="Details" asp-route-id="@suggested.Id" class="btn btn-outline-primary btn-sm">İncele</a>
+                                    <a asp-controller="CarBrowse" asp-action="Details" asp-route-id="@suggested.Id" class="btn btn-outline-primary btn-sm">İncele</a>
                                 </div>
                             </div>
                         </div>
@@ -154,14 +154,14 @@
                                 <div class="d-grid gap-2">
                                     @if (User.IsInRole("Admin"))
                                     {
-                                        <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-primary btn-sm">Detaylar</a>
-                                        <a asp-controller="Car" asp-action="Edit" asp-route-id="@car.Id" class="btn btn-outline-secondary btn-sm">Güncelle</a>
-                                        <a asp-controller="Car" asp-action="Delete" asp-route-id="@car.Id" class="btn btn-outline-danger btn-sm">Sil</a>
+                                        <a asp-controller="CarBrowse" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-primary btn-sm">Detaylar</a>
+                                        <a asp-controller="CarManagement" asp-action="Edit" asp-route-id="@car.Id" class="btn btn-outline-secondary btn-sm">Güncelle</a>
+                                        <a asp-controller="CarManagement" asp-action="Delete" asp-route-id="@car.Id" class="btn btn-outline-danger btn-sm">Sil</a>
 
                                     }
                                     else
                                     {
-                                        <a asp-controller="Car" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-primary btn-sm">Detaylar</a>
+                                        <a asp-controller="CarBrowse" asp-action="Details" asp-route-id="@car.Id" class="btn btn-outline-primary btn-sm">Detaylar</a>
                                     }
                                     
                                     

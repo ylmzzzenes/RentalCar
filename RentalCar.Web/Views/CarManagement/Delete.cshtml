@@ -19,9 +19,9 @@
         <dd class="col-sm-9">@Model.Plate</dd>
     </dl>
 
-    <form asp-action="DeleteConfirm" method="post" class="d-flex gap-2">
+    <form asp-controller="CarManagement" asp-action="DeleteConfirm" method="post" class="d-flex gap-2">
         <input type="hidden" asp-for="Id" />
         <button type="submit" class="btn btn-danger">Sil</button>
-        <a asp-action="List" class="btn btn-outline-light">Iptal</a>
+        <a asp-controller="CarBrowse" asp-action="List" class="btn btn-outline-light">Iptal</a>
     </form>
 </div>

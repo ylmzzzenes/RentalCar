@@ -7,7 +7,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="mb-0">Yaptigim Puanlamalar</h3>
-    <a asp-controller="Car" asp-action="List" class="btn btn-outline-secondary btn-sm">Ilanlara Don</a>
+    <a asp-controller="CarBrowse" asp-action="List" class="btn btn-outline-secondary btn-sm">Ilanlara Don</a>
 </div>
 
 @if (!Model.Any())
@@ -35,7 +35,7 @@ else
                         <td><span class="badge bg-warning text-dark">@rating.Score / 5</span></td>
                         <td>@rating.ModifiedOn.ToString("dd.MM.yyyy HH:mm")</td>
                         <td>
-                            <a asp-controller="Car" asp-action="Details" asp-route-id="@rating.CarId" class="btn btn-outline-primary btn-sm">Ilan Detayi</a>
+                            <a asp-controller="CarBrowse" asp-action="Details" asp-route-id="@rating.CarId" class="btn btn-outline-primary btn-sm">Ilan Detayi</a>
                         </td>
                     </tr>
                 }

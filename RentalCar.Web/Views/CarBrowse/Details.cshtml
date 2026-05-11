@@ -147,7 +147,7 @@
                         }
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <form asp-controller="Car" asp-action="ToggleFavorite" method="post" class="m-0">
+                            <form asp-controller="CarInteraction" asp-action="ToggleFavorite" method="post" class="m-0">
                                 <input type="hidden" name="carId" value="@car.Id" />
                                 <button type="submit" class="btn btn-danger-soft w-100 btn-lg">
                                     @(Model.IsFavorite ? "Favoriden çıkar" : "Favorilere ekle")
@@ -178,7 +178,7 @@
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         <div class="mt-3">
-                            <form asp-controller="Car" asp-action="Rate" method="post" class="d-flex flex-wrap align-items-center gap-2">
+                            <form asp-controller="CarInteraction" asp-action="Rate" method="post" class="d-flex flex-wrap align-items-center gap-2">
                                 <input type="hidden" name="carId" value="@car.Id" />
                                 <select name="score" class="form-select form-select-sm" style="max-width:9rem;">
                                     @for (var i = 1; i <= 5; i++)
@@ -240,24 +240,24 @@
                     @if (!string.IsNullOrWhiteSpace(seller?.UserId))
                     {
                         <a class="btn btn-primary-gradient w-100 mb-2"
-                           asp-controller="Car" asp-action="List" asp-route-postedBy="@seller.UserId">
+                           asp-controller="CarBrowse" asp-action="List" asp-route-postedBy="@seller.UserId">
                             Tüm ilanlarını gör @(seller.OtherListingsCount > 0 ? $"({seller.OtherListingsCount})" : "")
                         </a>
                     }
                     else
                     {
                         <a class="btn btn-outline-primary w-100 mb-2"
-                           asp-controller="Car" asp-action="List"
+                           asp-controller="CarBrowse" asp-action="List"
                            asp-route-brand="@car.CatalogBrand"
                            asp-route-model="@car.Model">
                             Benzer ilanlara git
                         </a>
                     }
 
-                    <a asp-controller="Car" asp-action="List" class="btn btn-link btn-sm text-decoration-none px-0 text-muted">← Tüm ilanlar</a>
+                    <a asp-controller="CarBrowse" asp-action="List" class="btn btn-link btn-sm text-decoration-none px-0 text-muted">← Tüm ilanlar</a>
                     @if (User.IsInRole("Admin"))
                     {
-                        <a asp-controller="Car" asp-action="Edit" asp-route-id="@car.Id" class="btn btn-outline-info w-100 mt-2">Düzenle (admin)</a>
+                        <a asp-controller="CarManagement" asp-action="Edit" asp-route-id="@car.Id" class="btn btn-outline-info w-100 mt-2">Düzenle (admin)</a>
                     }
                 </div>
             </div>
@@ -394,7 +394,7 @@
                 <h3 class="h5 fw-bold text-white mb-3">Yorumlar</h3>
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    <form asp-controller="Car" asp-action="AddComment" method="post" class="mb-3">
+                    <form asp-controller="CarInteraction" asp-action="AddComment" method="post" class="mb-3">
                         <input type="hidden" name="carId" value="@car.Id" />
                         <div class="input-group">
                             <input type="text" name="content" class="form-control" placeholder="Yorumunuzu yazın..." required maxlength="1500" />

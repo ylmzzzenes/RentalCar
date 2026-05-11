@@ -85,11 +85,11 @@ else
             </div>
 
             <div class="mt-4">
-                <a asp-controller="Car" asp-action="List" class="btn btn-outline-secondary">← Geri Dön</a>
+                <a asp-controller="CarBrowse" asp-action="List" class="btn btn-outline-secondary">← Geri Dön</a>
                 @if (User.IsInRole("Admin"))
                 {
-                    <a asp-controller="Car" asp-action="Edit" asp-route-id="@Model.Car.CarId" class="btn btn-outline-primary ms-2">Güncelle</a>
-                    <a asp-controller="Car" asp-action="Delete" asp-route-id="@Model.Car.CarId" class="btn btn-outline-danger ms-2">Sil</a>
+                    <a asp-controller="CarManagement" asp-action="Edit" asp-route-id="@Model.Car.CarId" class="btn btn-outline-primary ms-2">Güncelle</a>
+                    <a asp-controller="CarManagement" asp-action="Delete" asp-route-id="@Model.Car.CarId" class="btn btn-outline-danger ms-2">Sil</a>
                 }
             </div>
         </div>

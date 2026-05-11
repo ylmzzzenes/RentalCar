@@ -21,10 +21,10 @@
                     {
                         <ul class="navbar-nav me-auto gap-lg-1">
                             <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Anasayfa</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Car" asp-action="List">Araçlar</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="CarBrowse" asp-action="List">Araçlar</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Favorites" asp-action="Index">Favoriler</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Ratings" asp-action="Index">Puanlamalar</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Car" asp-action="Index">Araç Ekle</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="CarManagement" asp-action="Index">Araç Ekle</a></li>
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Dashboard">Admin Paneli</a></li>
@@ -32,7 +32,7 @@
                             <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="About">Hakkımızda</a></li>
                         </ul>
 
-                        <form asp-controller="Car" asp-action="List" method="get" class="d-flex me-lg-3 mt-3 mt-lg-0" role="search">
+                        <form asp-controller="CarBrowse" asp-action="List" method="get" class="d-flex me-lg-3 mt-3 mt-lg-0" role="search">
                             <input class="form-control form-control-sm me-2" type="search" name="searchString" placeholder="Ara..." />
                             <button class="btn btn-outline-light btn-sm" type="submit">Bul</button>
                         </form>
@@ -50,7 +50,7 @@
                                 <a class="nav-link" asp-controller="Home" asp-action="Index">Anasayfa</a>
                             </li>
                             <li class="nav-item me-2">
-                                <a class="nav-link" asp-controller="Car" asp-action="List">Ilanlar</a>
+                                <a class="nav-link" asp-controller="CarBrowse" asp-action="List">Ilanlar</a>
                             </li>
                         </ul>
                         <ul class="navbar-nav ms-auto mt-3 mt-lg-0">

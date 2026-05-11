@@ -67,7 +67,7 @@
 
     applyFilters?.addEventListener("click", function () {
         if (!latestFilters) return;
-        const url = new URL(window.location.origin + "/Car/List");
+        const url = new URL(window.location.origin + "/CarBrowse/List");
         const q = latestFilters.query || latestFilters.Query;
         if (q) url.searchParams.set("searchString", q);
         else if (latestFilters.city) url.searchParams.set("searchString", latestFilters.city);
@@ -93,7 +93,7 @@
             const price = item.price ? Number(item.price).toLocaleString("tr-TR") : "-";
             const city = item.city || "-";
             const html = `
-                <a class="ai-car-card text-decoration-none text-light" href="/Car/Details/${item.carId}">
+                <a class="ai-car-card text-decoration-none text-light" href="/CarBrowse/Details/${item.carId}">
                     <img src="${image}" alt="${escapeHtml(title)}" onerror="this.src='https://via.placeholder.com/112x112?text=Arac'" />
                     <div>
                         <div class="fw-semibold">${escapeHtml(title)}</div>
