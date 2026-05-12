@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using RentalCar.Application.Abstractions.Services.Cars;
 using RentalCar.Application.Contracts.Cars;
+using RentalCar.Application.Services.Cars;
 using RentalCar.Domain.Entities;
 using RentalCar.Infrastructure.Services.Cars;
+using RentalCar.Web.Mappers;
 using RentalCar.Web.Models.Requests;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -17,6 +19,7 @@ namespace RentalCar.Web.Controllers
         private readonly ICarAppService _carAppService;
         private readonly ICarListingReliabilityService _listingReliabilityService;
         private readonly ICarImageStorageService _carImageStorageService;
+        private readonly ICreateCarCommandMapper _createCarCommandMapper;
         private readonly IWebHostEnvironment _environment;
 
         public CarManagementController(
@@ -24,13 +27,15 @@ namespace RentalCar.Web.Controllers
             ICarAppService carAppService,
             ICarListingReliabilityService listingReliabilityService,
             IWebHostEnvironment environment,
-            ICarImageStorageService carImageStorageService)
+            ICarImageStorageService carImageStorageService,
+            ICreateCarCommandMapper createCarCommandMapper)
         {
             _carsServices = carsServices;
             _carAppService = carAppService;
             _listingReliabilityService = listingReliabilityService;
             _environment = environment;
             _carImageStorageService = carImageStorageService;
+            _createCarCommandMapper = createCarCommandMapper;
         }
         [Authorize]
         public IActionResult Index() => View(CreateCarFormDefaults.Create());
@@ -48,33 +53,14 @@ namespace RentalCar.Web.Controllers
                 return Challenge();
 
             var fileNames = (await _carImageStorageService.SaveAsync(request.PhotoUploads, cancellationToken)).ToList();
-            var prepareResult = await _carAppService.PrepareCarForCreateAsync(new CreateCarCommand
-            {
-                CatalogBrand = request.CatalogBrand,
-                Series = request.Series,
-                Model = request.Model,
-                ModelYear = request.ModelYear,
-                OdometerKm = request.OdometerKm,
-                ListedPrice = request.ListedPrice ?? 0,
-                FuelType = request.FuelType,
-                Transmission = request.Transmission,
-                EngineDisplacementLiters = request.EngineDisplacementLiters,
-                EnginePowerHp = request.EnginePowerHp,
-                Drivetrain = request.Drivetrain,
-                FuelTankLiters = request.FuelTankLiters,
-                ListingBodyType = request.ListingBodyType,
-                Color = request.Color,
-                VehicleCondition = request.VehicleCondition,
-                BodyWorkNotes = request.BodyWorkNotes,
-                TradeInAccepted = request.TradeInAccepted,
-                SellerType = request.SellerType,
-                ImageUrls = fileNames
-            }, HttpContext.RequestAborted);
+           var command = _createCarCommandMapper.Map(request, userId, fileNames);
+            var prepareResult = await _carAppService.PrepareCarForCreateAsync(command, cancellationToken);
 
             if (!prepareResult.Success)
             {
                 var msg = prepareResult.Message ?? "Araç oluşturulamadı.";
-                var chunks = msg.Split(new[] { ". " }, StringSplitOptions.RemoveEmptyEntries);
+                var chunks = msg.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+
                 foreach (var chunk in chunks)
                 {
                     var t = chunk.Trim();
@@ -87,6 +73,7 @@ namespace RentalCar.Web.Controllers
 
                 return View("Index", request);
             }
+
 
             var newCar = prepareResult.Data;
             newCar.PostedByUserId = userId;

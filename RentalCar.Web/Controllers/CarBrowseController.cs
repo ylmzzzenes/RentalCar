@@ -15,17 +15,20 @@ namespace RentalCar.Web.Controllers
         private readonly ICarInteractionService _carInteractionService;
         private readonly ICarListingReliabilityService _listingReliabilityService;
         private readonly ICarListingInsightService _listingInsightService;
+        private readonly ICarDetailsPageService _carDetailsPageService;
 
         public CarBrowseController(
             CarServices carsServices,
             ICarInteractionService carInteractionService,
             ICarListingReliabilityService listingReliabilityService,
-            ICarListingInsightService listingInsightService)
+            ICarListingInsightService listingInsightService,
+            ICarDetailsPageService carDetailsPageService)
         {
             _carsServices = carsServices;
             _carInteractionService = carInteractionService;
             _listingReliabilityService = listingReliabilityService;
             _listingInsightService = listingInsightService;
+            _carDetailsPageService = carDetailsPageService;
         }
     
         [HttpGet]
@@ -177,14 +180,14 @@ namespace RentalCar.Web.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var isAdmin = User.IsInRole("Admin");
 
-            var result = await _carInteractionService.GetCarDetailAsync(
+            var result = await _carDetailsPageService.BuildAsync(
                 id,
                 userId,
                 isAdmin,
                 cancellationToken);
 
-            if (result == null) return NotFound();
-            var reliability = await _listingReliabilityService.CalculateAsync(result.Car, cancellationToken);
+            if (result == null)
+                return NotFound();
             var insights = await _listingInsightService.GetInsightsAsync(id, userId, cancellationToken);
 
             var model = new CarDetailsViewModel
@@ -194,22 +197,16 @@ namespace RentalCar.Web.Controllers
                 SimilarCars = result.SimilarCars,
                 ListingInsights = insights,
                 RecommendedCars = result.RecommendedCars,
-                Comments = result.Comments.Select(x => new CarComment
-                {
-                    Id = x.Id,
-                    Content = $"{x.UserName}|{x.Content}",
-                    CreatedOn = x.CreatedOn
-
-                }).ToList(),
+                Comments = result.Comments,
                 AverageRating = result.AverageRating,
                 RatingCount = result.RatingCount,
                 CurrentUserRating = result.CurrentUserRating,
                 IsFavorite = result.IsFavorite,
-                ReliabilityScore = reliability.Score,
-                ReliabilityLabel = reliability.Label,
-                ReliabilityTrustLevelTr = reliability.TrustLevelTr,
-                ReliabilityExplanation = reliability.UserExplanation,
-                ReliabilityFactors = isAdmin ? reliability.Factors : null
+                ReliabilityScore = result.ReliabilityScore,
+                ReliabilityLabel = result.ReliabilityLabel,
+                ReliabilityTrustLevelTr = result.ReliabilityTrustLevelTr,
+                ReliabilityExplanation = result.ReliabilityExplanation,
+                ReliabilityFactors = result.ReliabilityFactors
             };
 
             return View(model);
