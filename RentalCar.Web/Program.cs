@@ -19,6 +19,9 @@ using System.Net.Http.Headers;
 using RentalCar.Infrastructure.Identity;
 using RentalCar.Infrastructure.Services.Purchases;
 using Serilog;
+using RentalCar.Web;
+using RentalCar.Application.Services.Cars;
+using RentalCar.Web.Mappers;
 
 namespace RentalCar
 {
@@ -135,6 +138,8 @@ namespace RentalCar
             builder.Services.AddScoped<IPricingService, PricingService>();
             builder.Services.AddScoped<IFaqService, FaqService>();
             builder.Services.AddScoped<ICarInteractionService, CarInteractionService>();
+            builder.Services.AddScoped<ICarImageStorageService, LocalCarImageStorageService>();
+            builder.Services.AddScoped<ICreateCarCommandMapper, CreateCarCommandMapper>();
             builder.Services.AddHttpClient(nameof(CarCatalogImageSyncService));
 
             var aiBaseUrl = builder.Configuration["AiApi:BaseUrl"] ?? "http://localhost:8000";
