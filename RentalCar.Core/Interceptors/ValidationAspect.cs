@@ -1,4 +1,4 @@
-﻿using Castle.DynamicProxy;
+using Castle.DynamicProxy;
 using FluentValidation;
 using RentalCar.Core.CrossCuttingConcerns.Validation;
 

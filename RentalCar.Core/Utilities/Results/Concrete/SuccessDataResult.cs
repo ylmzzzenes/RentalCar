@@ -1,4 +1,4 @@
-﻿namespace RentalCar.Core.Utilities.Results.Concrete
+namespace RentalCar.Core.Utilities.Results.Concrete
 {
     public class SuccessDataResult<T>: DataResult<T>
     {
