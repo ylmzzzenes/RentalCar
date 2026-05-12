@@ -10,7 +10,7 @@ public class CreateCarCommand
     public string? Model { get; set; }
     public int? ModelYear { get; set; }
     public int? OdometerKm { get; set; }
-    public decimal ListedPrice { get; set; }
+    public decimal? ListedPrice { get; set; }
 
     public Gear Transmission { get; set; }
     public FuelType FuelType { get; set; }

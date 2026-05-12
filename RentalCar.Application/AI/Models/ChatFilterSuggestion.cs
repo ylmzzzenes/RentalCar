@@ -1,4 +1,4 @@
-﻿namespace RentalCar.Application.AI.Models
+namespace RentalCar.Application.AI.Models
 {
     public class ChatFilterSuggestion
     {
